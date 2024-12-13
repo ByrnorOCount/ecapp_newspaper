@@ -1,0 +1,19 @@
+{
+    "name": "name",
+    "description": "description",
+    "authors": "author",
+    "version": "1.0.0",
+    "main": "pathToMain",
+    "type": "module",
+    "dependencies": {
+        "express": "^4.21.2",
+        "express-handlebars": "^8.0.1",
+        "express-handlebars-sections": "^1.0.1",
+        "express-session": "^1.18.1",
+        "knex": "^3.1.0",
+        "mysql2": "^3.11.5"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.7"
+    }
+}
