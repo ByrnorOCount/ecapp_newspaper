@@ -29,6 +29,9 @@ app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'main',
   helpers: {
+    formatDate(date) {
+      return new Date(date).toLocaleDateString();
+    },
     section: hbs_sections()
   }
 }));

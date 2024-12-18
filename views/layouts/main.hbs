@@ -13,75 +13,7 @@
     {{{_sections.css}}}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow mb-4">
-        <a class="navbar-brand" href="#">
-            <i class="bi bi-house"></i> Newspaper
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav">
-                {{#if auth}}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                            Hello, <b>{{authUser.name}}</b>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/account/profile">
-                                <i class="bi bi-person"></i> Profile
-                            </a>
-                            <form id="frmLogout" action="/account/logout" method="post"></form>
-                            <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
-                                <i class="bi bi-box-arrow-right"></i> Sign out
-                            </a>
-                        </div>
-                    </li>
-                {{else}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/register">
-                            <i class="bi bi-person-plus"></i> Sign up
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/account/login">
-                            <i class="bi bi-box-arrow-in-right"></i> Sign in
-                        </a>
-                    </li>
-                {{/if}}
-            </ul>
-        </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-3">
-                <div class="card mt-3">
-                    <h4 class="card-header">
-                        Categories
-                    </h4>
-                    <div class="list-group list-group-flush">
-                        {{#each lcCategories}}
-                            <a href="/products/byCat?id={{CatID}}" class="list-group-item list-group-item-action">{{CatName}}</a>
-                        {{/each}}
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-9">
-                {{{body}}}
-            </div>
-        </div>
-    </div>
+    {{{body}}}
 
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
     crossorigin="anonymous"></script>
