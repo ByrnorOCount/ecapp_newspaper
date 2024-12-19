@@ -32,7 +32,19 @@ app.engine('hbs', engine({
     formatDate(date) {
       return new Date(date).toLocaleDateString();
     },
-    section: hbs_sections()
+    section: hbs_sections(),
+    add: (a, b) => a + b,
+    subtract: (a, b) => a - b,
+    lte: (a, b) => a <= b, // less
+    gte: (a, b) => a >= b, // greater
+    eq: (a, b) => a === b,
+    neq: (a, b) => a !== b,
+    split(str, delimiter) {
+      return str.split(delimiter);
+    },
+    selected(value, selectedValue) {
+      return value === selectedValue ? 'selected' : '';
+    },
   }
 }));
 app.set('view engine', 'hbs');

@@ -72,7 +72,7 @@
       <ul class="list-group mb-4">
         {{#each topCategories}}
         <li class="list-group-item">
-          <a href="/categories/{{this.category_id}}" class="font-weight-bold">{{this.category_name}}</a><br>
+          <a href="/categories/{{this.category_id}}" class="font-weight-bold">{{this.maincategory_name}} - {{this.subcategory_name}}</a><br>
           <a href="/articles/{{this.article_id}}" class="text-muted">
             <small>{{this.article_title}}</small>
           </a>
@@ -85,7 +85,7 @@
         {{#each mostViewedArticles}}
         <li class="list-group-item">
           <a href="/articles/{{this.id}}">{{this.title}}</a><br>
-          <small class="text-muted">{{this.category_name}} - {{formatDate this.publication_date}}</small>
+          <small class="text-muted">{{this.maincategory_name}} - {{this.subcategory_name}} - {{formatDate this.publication_date}}</small>
         </li>
         {{/each}}
       </ul>
