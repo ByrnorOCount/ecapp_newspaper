@@ -73,8 +73,8 @@ export default {
             .limit(10);
     },
 
-    async getFilteredArticles({ category, tag, limit, offset }) {
-        let query = db('articles as a')
+    async getFilteredArticles({ category, tag, search, limit, offset }) {
+        let query = db('articles as a') // fetch articles
             .select(
                 'a.id',
                 'a.title',
@@ -103,10 +103,17 @@ export default {
         if (tag) {
             query = query.havingRaw('FIND_IN_SET(?, tags)', [tag]);
         }
-    
+
+        if (search) {
+            query = query.whereRaw(
+              'MATCH (a.title, a.summary, a.content) AGAINST (? IN NATURAL LANGUAGE MODE)',
+              [search]
+            );
+        }
+
         const articles = await query;
     
-        let totalQuery = db('articles as a')
+        let totalQuery = db('articles as a') // count total articles
             .countDistinct('a.id as count')
             .leftJoin('categories as sub', 'a.category_id', 'sub.id')
             .leftJoin('categories as main', 'sub.parent_id', 'main.id')
@@ -115,19 +122,32 @@ export default {
             .where('a.status', 'published');
     
         if (category) {
-            totalQuery = totalQuery.where('sub.name', category);
+            totalQuery = totalQuery.where(function () {
+                this.where('sub.name', category).orWhere('main.name', category);
+            });
         }
     
         if (tag) {
-            totalQuery = totalQuery.havingRaw('FIND_IN_SET(?, GROUP_CONCAT(t.name ORDER BY t.name))', [tag]);  // Filter by tag
+            totalQuery = totalQuery.whereExists(function () {
+                this.select('*')
+                    .from('tags as t')
+                    .join('article_tags as at', 't.id', 'at.tag_id')
+                    .whereRaw('at.article_id = a.id')
+                    .andWhere('t.name', tag);
+            });
         }
+
+        if (search) {
+            totalQuery = totalQuery.whereRaw(
+              'MATCH (a.title, a.summary, a.content) AGAINST (? IN NATURAL LANGUAGE MODE)',
+              [search]
+            );
+        }
+
+        const { count: total = 0 } = (await totalQuery.first()) || {};
     
-        const [{ count: total } = { count: 0 }] = await totalQuery;
-        if (total === undefined) {
-            total = 0;
-        }
         return { articles, total: parseInt(total, 10) };
-    },    
+    },
 
     async getCategories() {
         return await db('categories').select('name').orderBy('name');
@@ -135,5 +155,55 @@ export default {
 
     async getTags() {
         return await db('tags').select('name').orderBy('name');
-    }
+    },
+
+    async getArticleById(id) {
+        const article = await db('articles as a')
+            .select(
+            'a.id',
+            'a.title',
+            'a.content',
+            'a.thumbnail',
+            'a.publication_date',
+            'sub.name as subcategory_name',
+            'main.name as maincategory_name',
+            db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags') // Fetch and concatenate tags
+            )
+            .leftJoin('categories as sub', 'a.category_id', 'sub.id')
+            .leftJoin('categories as main', 'sub.parent_id', 'main.id')
+            .leftJoin('article_tags as at', 'a.id', 'at.article_id')
+            .leftJoin('tags as t', 'at.tag_id', 't.id')
+            .where('a.id', id)
+            .andWhere('a.status', 'published')
+            .groupBy('a.id', 'sub.name', 'main.name')
+            .first();
+        
+        return article;
+    },
+
+    async getRelatedArticles(articleId, limit = 5) {
+        const article = await db('articles as a')
+            .select('a.category_id')
+            .where('a.id', articleId)
+            .andWhere('a.status', 'published')
+            .first();
+    
+        return await db('articles as a')
+            .select(
+                'a.id',
+                'a.title',
+                'a.thumbnail',
+                'a.summary',
+                'a.publication_date',
+                'sub.name as subcategory_name',
+                'main.name as maincategory_name'
+            )
+            .leftJoin('categories as sub', 'a.category_id', 'sub.id')
+            .leftJoin('categories as main', 'sub.parent_id', 'main.id')
+            .where('a.status', 'published')
+            .andWhere('a.id', '!=', articleId) // Exclude the current article
+            .andWhere('a.category_id', article.category_id) // Match articles from the same category
+            .orderBy('a.publication_date', 'desc') // Most recent first
+            .limit(limit);
+    },
 };

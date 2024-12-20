@@ -40,11 +40,18 @@ app.engine('hbs', engine({
     eq: (a, b) => a === b,
     neq: (a, b) => a !== b,
     split(str, delimiter) {
+      if (!str || !delimiter) return [];
       return str.split(delimiter);
     },
     selected(value, selectedValue) {
       return value === selectedValue ? 'selected' : '';
     },
+    or() {
+      return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    },
+    and() {
+      return Array.prototype.slice.call(arguments, 0, -1).every(Boolean);
+    }
   }
 }));
 app.set('view engine', 'hbs');

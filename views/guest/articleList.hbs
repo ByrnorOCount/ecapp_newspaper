@@ -61,25 +61,59 @@
 </style>
 {{/section}}
 
+{{#section 'js'}}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[data-category][data-tag]');
+    if (!form) return;
+
+    const selectedCategory = form.getAttribute('data-category');
+    const selectedTag = form.getAttribute('data-tag');
+
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect && selectedCategory) {
+      const categoryOptions = categorySelect.options;
+      for (let i = 0; i < categoryOptions.length; i++) {
+        if (categoryOptions[i].value === selectedCategory) {
+          categoryOptions[i].selected = true;
+          break;
+        }
+      }
+    }
+
+    const tagSelect = document.getElementById('tag-select');
+    if (tagSelect && selectedTag) {
+      const tagOptions = tagSelect.options;
+      for (let i = 0; i < tagOptions.length; i++) {
+        if (tagOptions[i].value === selectedTag) {
+          tagOptions[i].selected = true;
+          break;
+        }
+      }
+    }
+  });
+</script>
+{{/section}}
+
 <div class="container mt-3">
   <h1 class="section-header">Articles</h1>
   
-  <form method="get" class="mb-4" action="/articles">
+  <form method="get" class="mb-4" action="/articles" data-category="{{category}}" data-tag="{{tag}}">
     <div class="row">
       <div class="col-md-5">
-        <select name="category" class="form-control">
+        <select id="category-select" name="category" class="form-control">
           <option value="">All Categories</option>
           {{#each categories}}
-            <option value="{{this.name}}" {{selected this.name category}}>{{this.name}}</option>
+            <option value="{{this.name}}">{{this.name}}</option>
           {{/each}}
         </select>
       </div>
 
       <div class="col-md-5">
-        <select name="tag" class="form-control">
+        <select id="tag-select" name="tag" class="form-control">
           <option value="">All Tags</option>
           {{#each tags}}
-            <option value="{{this.name}}" {{#if (eq this.name tag)}}selected{{/if}}>{{this.name}}</option>
+            <option value="{{this.name}}">{{this.name}}</option>
           {{/each}}
         </select>
       </div>
@@ -89,6 +123,19 @@
       </div>
     </div>
   </form>
+
+  {{#if (or search category tag)}}
+    {{#if search}}
+      <h4 class="text-center my-4">Search Results for: "{{search}}"</h4>
+    {{/if}}
+    {{#if (gte totalArticles 1)}}
+      <h4 class="text-center my-4">{{totalArticles}} 
+        {{#if (gte totalArticles 2)}} articles {{else}} article {{/if}} 
+        found.</h4>
+    {{else}}
+      <h4 class="text-center my-4">No articles found.</h4>
+    {{/if}}
+  {{/if}}
 
   <nav aria-label="Page navigation">
     <ul class="pagination">
