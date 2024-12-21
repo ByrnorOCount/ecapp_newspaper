@@ -6,12 +6,20 @@
     "main": "pathToMain",
     "type": "module",
     "dependencies": {
+        "bcrypt": "^5.1.1",
+        "connect-flash": "^0.1.1",
         "express": "^4.21.2",
         "express-handlebars": "^8.0.1",
         "express-handlebars-sections": "^1.0.1",
         "express-session": "^1.18.1",
         "knex": "^3.1.0",
-        "mysql2": "^3.11.5"
+        "mysql2": "^3.11.5",
+        "passport": "^0.7.0",
+        "passport-facebook": "^3.0.0",
+        "passport-github": "^1.1.0",
+        "passport-google-oauth20": "^2.0.0",
+        "passport-local": "^1.0.0",
+        "passport-twitter": "^0.1.5"
     },
     "devDependencies": {
         "nodemon": "^3.1.7"

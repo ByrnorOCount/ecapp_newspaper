@@ -4,12 +4,15 @@ import session from 'express-session';
 import hbs_sections from 'express-handlebars-sections';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import passport from 'passport';
+import flash from 'connect-flash';
 
 import guestRouter from './routes/guest.route.js';
 import subscriberRouter from './routes/subscriber.route.js';
 import writerRouter from './routes/writer.route.js';
 import editorRouter from './routes/editor.route.js';
 import adminRouter from './routes/admin.route.js';
+import authRoutes from './routes/auth.route.js';
 
 import { authAdmin } from './middlewares/auth.mdw.js';
 
@@ -60,12 +63,21 @@ app.set('views', __dirname + '/views');
 app.use('/static', express.static('static'));
 
 // middlewares
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
 app.use(express.urlencoded({ //POST requests
     extended: true 
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
-app.use(async function (req, res, next) {
-  //tba
+app.use((req, res, next) => {
+  res.locals.successMessages = req.flash('success');
+  res.locals.errorMessages = req.flash('error');
   next();
 });
 
@@ -74,6 +86,7 @@ app.use('/subscriber', subscriberRouter);
 app.use('/writer', writerRouter);
 app.use('/editor', editorRouter);
 app.use('/admin', authAdmin, adminRouter);
+app.use('/auth', authRoutes);
 
 app.listen(3000, () => {
   console.log('Newspaper App is running at http://localhost:3000');

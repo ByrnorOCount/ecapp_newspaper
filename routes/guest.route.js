@@ -1,5 +1,6 @@
 import express from 'express';
 import articleService from '../services/article.service.js';
+import commentService from '../services/comment.service.js';
 
 const router = express.Router();
 
@@ -70,12 +71,16 @@ router.get('/articles/:id', async function (req, res) {
   try {
     const article = await articleService.getArticleById(req.params.id);
     const relatedArticles = await articleService.getRelatedArticles(req.params.id);
+    const comments = await commentService.getCommentsByArticleId(req.params.id);
 
     res.render('guest/articleDetails', {
       article,
-      relatedArticles
+      relatedArticles,
+      comments,
+      user: req.user // check login status
     });
-  } catch {
+  } catch (error) {
+    console.log(error);
     res.redirect('/articles');
   }
 });
