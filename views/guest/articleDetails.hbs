@@ -49,23 +49,23 @@
     <a href="/articles?category={{article.maincategory_name}}">{{article.maincategory_name}}</a> -
     <a href="/articles?category={{article.subcategory_name}}">{{article.subcategory_name}}</a>
   </p>
-  <img src="/static/images/{{article.thumbnail}}" alt="{{article.title}}" class="article-thumbnail">
-  <div class="content">
-    {{{article.content}}}
-  </div>
   <p class="tags">
     <strong>Tags:</strong> 
     {{#each (split article.tags ',')}}
       <a href="/articles?tag={{this}}" class="badge badge-secondary">{{this}}</a>
     {{/each}}
   </p>
+  <img src="/static/images/{{article.thumbnail}}" alt="{{article.title}}" class="article-thumbnail">
+  <div class="content">
+    {{{article.content}}}
+  </div>
 </div>
 
 <div class="comments container mt-4">
   <h3>Comments</h3>
   {{#each comments}}
     <div class="comment">
-      <p><strong>{{username}}</strong> ({{formatDate comment_date}}):</p>
+      <p><strong>{{username}}</strong> ({{comment_date}}):</p>
       <p>{{content}}</p>
     </div>
   {{/each}}

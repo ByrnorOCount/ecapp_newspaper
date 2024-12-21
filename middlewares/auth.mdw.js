@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
-import db from '../utils/db.js';
+import userService from '../services/user.service.js';
 
 export default function (req, res, next) {
     //tba
@@ -20,7 +20,7 @@ passport.use(new LocalStrategy(
     },
     async function(email, password, done) {
       try {
-        const user = await db.getUserByEmail(email);
+        const user = await userService.getUserByEmail(email);
         if (!user) {
           return done(null, false, { message: 'Incorrect email.' });
         }
@@ -41,7 +41,7 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(async function (id, done) {
   try {
-    const user = await db.getUserById(id);
+    const user = await userService.getUserById(id);
     done(null, user);
   } catch (err) {
     done(err, null);
@@ -50,7 +50,7 @@ passport.deserializeUser(async function (id, done) {
 
 export function isAuthenticated (req, res, next) {
     if (req.isAuthenticated()) return next();
-    res.redirect('/auth/login');
+    res.redirect('/login');
 };
   
 export function isRole(role) {

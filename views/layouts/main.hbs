@@ -32,6 +32,22 @@
             color: white;
         }
 
+        .nav-link.logout-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        .navbar .nav-item .nav-link {
+            transition: color 0.3s ease;
+        }
+
+        .navbar .nav-link:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
         .bi-bricks {
             color: white;
         }
@@ -65,43 +81,71 @@
                         <div class="input-group" style="max-width: 500px; width: 100%;">
                             <input type="text" name="search" value="{{search}}" class="form-control" placeholder="Search articles">
                             <div class="input-group-append">
-                                <button type="submit" class="btn btn-outline-success">Search</button>
+                                <button type="submit" class="btn btn-outline-success">
+                                <i class="bi bi-search"></i>
+                                </button>
                             </div>
                         </div>
                     </form>
                 </div>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="/">
+                        <i class="bi bi-house-fill"></i>
+                        Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/articles">Articles</a>
+                        <a class="nav-link" href="/articles">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        Articles</a>
+                    </li>
+                    </li>
+                    {{#if auth}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">
+                        <i class="bi bi-person-fill"></i>
+                        Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact">Contact</a>
-                    </li>
-                    {{#if user}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/profile">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
+                        <form action="/logout" method="POST">
+                            <button type="submit" class="nav-link logout-button">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
                     </li>
                     {{else}}
                     <li class="nav-item">
-                        <a class="nav-link" href="/login">Sign In</a>
+                        <a class="nav-link" href="/login">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Sign In</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/register">Sign Up</a>
+                        <a class="nav-link" href="/register">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Sign Up</a>
                     </li>
                     {{/if}}
                 </ul>
             </div>
         </div>
     </nav>
+
+    {{#if successMessages}}
+        <div class="alert alert-success">
+        {{#each successMessages}}
+            <p>{{this}}</p>
+        {{/each}}
+        </div>
+    {{/if}}
+
+    {{#if errorMessages}}
+        <div class="alert alert-danger">
+        {{#each errorMessages}}
+            <p>{{this}}</p>
+        {{/each}}
+        </div>
+    {{/if}}
 
     {{{body}}}
 

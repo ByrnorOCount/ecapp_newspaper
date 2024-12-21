@@ -63,8 +63,12 @@ app.set('views', __dirname + '/views');
 app.use('/static', express.static('static'));
 
 // middlewares
-app.use((req, res, next) => {
-  res.locals.user = req.user || null;
+app.use(async function (req, res, next) {
+  if (!req.session.auth) {
+      req.session.auth = false;
+  }
+  res.locals.auth = req.session.auth;
+  res.locals.authUser = req.session.authUser;
   next();
 });
 
@@ -75,7 +79,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.use((req, res, next) => {
+app.use(function (req, res, next) {
   res.locals.successMessages = req.flash('success');
   res.locals.errorMessages = req.flash('error');
   next();
@@ -86,7 +90,7 @@ app.use('/subscriber', subscriberRouter);
 app.use('/writer', writerRouter);
 app.use('/editor', editorRouter);
 app.use('/admin', authAdmin, adminRouter);
-app.use('/auth', authRoutes);
+app.use('/', authRoutes);
 
 app.listen(3000, () => {
   console.log('Newspaper App is running at http://localhost:3000');
