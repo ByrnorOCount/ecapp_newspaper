@@ -1,6 +1,8 @@
 import express from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
+import { isAuthenticated } from '../middlewares/auth.mdw.js';
+import userService from '../services/user.service.js';
 
 const router = express.Router();
 
@@ -34,20 +36,25 @@ router.get('/login', function (req, res) {
 router.post('/login', passport.authenticate('local', {
     failureRedirect: '/login',
     failureFlash: true,
-  }), async function (req, res) {
+  }), function (req, res) {
       req.session.auth = true;
       req.session.authUser = req.user;
-      const retUrl = req.session.retUrl || '/';
-      res.redirect(retUrl);      
+
+      const redirectUrl = req.session.previousPage || '/';
+      delete req.session.previousPage; // Clean up
+      res.redirect(redirectUrl);
 });
 
-router.post('/logout', function (req, res) {
-  req.session.auth = false;
-  req.session.authUser = null;
-  req.logout(res.redirect(req.headers.refere || '/'));
+router.post('/logout', isAuthenticated, function (req, res, next) {
+  req.logout(function (error) {
+    if (error) { return next(error); }
+    req.session.auth = false;
+    req.session.authUser = null;
+    res.redirect(req.headers.referer);
+  });
 });
 
-router.get('/profile', function (req, res) {
+router.get('/profile', isAuthenticated, function (req, res) {
   if (!req.isAuthenticated()) {
     req.flash('error', 'You must be logged in to view your profile.');
     return res.redirect('/login');

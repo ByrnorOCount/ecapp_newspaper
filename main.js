@@ -21,12 +21,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 app.set('trust proxy', 1) // trust first proxy
+
 app.use(session({
   secret: 'newspaper_secret_key',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(flash());
+
+app.use(express.urlencoded({ //POST requests
+  extended: true 
+}));
+
+app.use('/static', express.static('static'));
 
 app.engine('hbs', engine({
   extname: 'hbs',
@@ -60,28 +72,26 @@ app.engine('hbs', engine({
 app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
-app.use('/static', express.static('static'));
-
 // middlewares
+app.use(function (req, res, next) {
+  res.locals.successMessages = req.flash('success');
+  res.locals.errorMessages = req.flash('error');
+  next();
+});
+
+app.use(function (req, res, next) {
+  if (!['/login', '/register', '/logout'].includes(req.path)) {
+    req.session.previousPage = req.originalUrl;
+  }
+  next();
+});
+
 app.use(async function (req, res, next) {
   if (!req.session.auth) {
       req.session.auth = false;
   }
   res.locals.auth = req.session.auth;
   res.locals.authUser = req.session.authUser;
-  next();
-});
-
-app.use(express.urlencoded({ //POST requests
-    extended: true 
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-
-app.use(function (req, res, next) {
-  res.locals.successMessages = req.flash('success');
-  res.locals.errorMessages = req.flash('error');
   next();
 });
 
@@ -92,6 +102,6 @@ app.use('/editor', editorRouter);
 app.use('/admin', authAdmin, adminRouter);
 app.use('/', authRoutes);
 
-app.listen(3000, () => {
+app.listen(3000, function () {
   console.log('Newspaper App is running at http://localhost:3000');
 });

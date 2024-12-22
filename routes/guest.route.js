@@ -1,6 +1,7 @@
 import express from 'express';
 import articleService from '../services/article.service.js';
 import commentService from '../services/comment.service.js';
+import { isAuthenticated } from '../middlewares/auth.mdw.js';
 
 const router = express.Router();
 
@@ -77,11 +78,28 @@ router.get('/articles/:id', async function (req, res) {
       article,
       relatedArticles,
       comments,
-      user: req.user // check login status
+      user: req.session.authUser,
     });
   } catch (error) {
     console.log(error);
     res.redirect('/articles');
+  }
+});
+
+router.post('/articles/:id/comment', isAuthenticated, async function (req, res) {
+  const { articleId, content } = req.body;
+  const userId = req.session.authUser.id;
+
+  if (!content || !articleId) {
+      return res.status(400).json({ error: 'Content and article ID are required' });
+  }
+
+  try {
+      await commentService.addComment(articleId, userId, content);
+      res.redirect(`/articles/${articleId}`);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to add comment' });
   }
 });
 
