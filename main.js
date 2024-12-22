@@ -44,8 +44,12 @@ app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'main',
   helpers: {
-    formatDate(date) {
-      return new Date(date).toLocaleDateString();
+    formatDate(date, mode = 'default') {
+      const d = new Date(date);
+      if (mode === 'input') {
+          return d.toISOString().split('T')[0]; // YYYY-MM-DD mode
+      }
+      return d.toLocaleDateString(); // default MM-DD-YYYY mode
     },
     section: hbs_sections(),
     add: (a, b) => a + b,

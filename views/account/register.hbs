@@ -1,24 +1,32 @@
-<h2 class="text-center mt-5">Register</h2>
-<div class="container mt-4">
-    <form action="/register" method="post">
-        <div class="form-group">
-            <label for="full_name">Full Name:</label>
-            <input type="text" name="full_name" id="full_name" class="form-control" required>
+<h2 class="text-center mt-3">Register</h2>
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <form action="/register" method="post">
+                <div class="form-group">
+                    <label for="full_name">Full Name:</label>
+                    <input type="text" name="full_name" id="full_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="pen_name">Pen Name: (optional)</label>
+                    <input type="text" name="pen_name" id="pen_name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" name="date_of_birth" id="dob" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Register</button>
+            </form>
+            <hr>
+            <p class="text-center">Already have an account? <a href="/login">Login here</a></p>
         </div>
-        <div class="form-group">
-            <label for="pen_name">Pen Name:</label>
-            <input type="text" name="pen_name" id="pen_name" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-success">Register</button>
-    </form>
-    <hr>
-    <p class="text-center">Already have an account? <a href="/login">Login here</a></p>
+    </div>
 </div>

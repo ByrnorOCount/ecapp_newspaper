@@ -1,5 +1,5 @@
-<h2 class="text-center mt-5">Profile</h2>
-<div class="container mt-4">
+<h2 class="text-center mt-3">Profile</h2>
+<div class="container mt-3">
     <div class="card">
         <div class="card-header">
             Profile Details
@@ -9,7 +9,49 @@
             <p><strong>Pen Name:</strong> {{authUser.pen_name}}</p>
             <p><strong>Email:</strong> {{authUser.email}}</p>
             <p><strong>Role:</strong> {{authUser.role}}</p>
-            <p><strong>Date of Birth:</strong> {{authUser.date_of_birth}}</p>
+            <p><strong>Date of Birth:</strong> {{formatDate authUser.date_of_birth}}</p>
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5>Update Personal Information</h5>
+            <form action="/profile/update-info" method="POST">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" name="full_name" id="fullName" class="form-control" value="{{authUser.full_name}}" required>
+                </div>
+                {{#if (eq authUser.role "writer")}}
+                <div class="form-group">
+                    <label for="penName">Pen Name</label>
+                    <input type="text" name="pen_name" id="penName" class="form-control" value="{{authUser.pen_name}}">
+                </div>
+                {{/if}}
+                <div class="form-group">
+                    <label for="email">Contact Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{authUser.email}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" name="date_of_birth" id="dob" class="form-control" value="{{formatDate authUser.date_of_birth 'input'}}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Info</button>
+            </form>
+        </div>
+    </div>
+        <div class="card mt-4">
+        <div class="card-body">
+            <h5>Change Password</h5>
+            <form action="/profile/change-password" method="POST">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" name="current_password" id="currentPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" name="new_password" id="newPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
         </div>
     </div>
 </div>

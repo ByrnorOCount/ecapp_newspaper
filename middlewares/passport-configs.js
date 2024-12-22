@@ -30,7 +30,7 @@ passport.deserializeUser(async function (id, done) {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: '/google/callback'
   }, async function (token, tokenSecret, profile, done) {
     try {
       let user = await userService.findByEmail(profile.emails[0].value);
