@@ -88,4 +88,17 @@ export default {
 
         return { message: 'Password updated successfully' };
     },
+
+    async findByIdWithSubscription(userId) {
+        const result = await db('users as u')
+            .leftJoin('subscriptions as s', 'u.id', 's.user_id')
+            .select(
+                'u.*',
+                's.valid_until'
+            )
+            .where('u.id', userId)
+            .first();
+
+        return result;
+    }
 };

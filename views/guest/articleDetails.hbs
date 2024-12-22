@@ -57,8 +57,17 @@
   </p>
   <img src="/static/images/{{article.thumbnail}}" alt="{{article.title}}" class="article-thumbnail">
   <div class="content">
-    {{{article.content}}}
+    {{#if article.content}}
+        <p>{{{article.content}}}</p>
+    {{else}}
+        <p>This content is unavailable.</p>
+    {{/if}}
   </div>
+  {{#if user.valid_until}}
+      <a href="/articles/{{article.id}}/download" class="btn btn-primary mt-3">
+        Download as PDF
+      </a>
+  {{/if}}
 </div>
 
 <div class="comments container mt-4">

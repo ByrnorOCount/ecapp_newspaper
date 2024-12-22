@@ -38,7 +38,7 @@
             </form>
         </div>
     </div>
-        <div class="card mt-4">
+    <div class="card mt-4">
         <div class="card-body">
             <h5>Change Password</h5>
             <form action="/profile/change-password" method="POST">
@@ -51,6 +51,25 @@
                     <input type="password" name="new_password" id="newPassword" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5>Subscription</h5>
+            {{#if authUser.valid_until}}
+                <p>Your subscription is valid until: {{formatDate authUser.valid_until}}</p>
+            {{else}}
+                <p>You are not subscribed.</p>
+            {{/if}}
+            <form action="/profile/subscribe" method="POST">
+                <button type="submit" class="btn btn-success">Subscribe</button>
+            </form>
+            <form action="/profile/extend" method="POST">
+                <button type="submit" class="btn btn-primary">Extend Subscription</button>
+            </form>
+            <form action="/profile/unsubscribe" method="POST">
+                <button type="submit" class="btn btn-danger">Unsubscribe</button>
             </form>
         </div>
     </div>

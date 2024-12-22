@@ -1,7 +1,8 @@
 import express from 'express';
 import articleService from '../services/article.service.js';
 import commentService from '../services/comment.service.js';
-import { isAuthenticated } from '../middlewares/auth.mdw.js';
+import { isAuthenticated, restrictPremium } from '../middlewares/auth.mdw.js';
+import pdfService from '../services/pdf.service.js';
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get('/articles', async function (req, res) {
       search,
       limit,
       offset,
+      user: req.session.authUser
     });
 
     const totalPages = Math.max(Math.ceil(total / limit), 1);
@@ -49,8 +51,11 @@ router.get('/articles', async function (req, res) {
             search,
             limit,
             offset: validOffset,
+            user: req.session.authUser
           }) : { articles, total };
-    
+          
+    console.log('User valid_until:', req.session.authUser?.valid_until);
+
     res.render('guest/articleList', {
       articles: validArticles,
       totalArticles: total,
@@ -68,14 +73,14 @@ router.get('/articles', async function (req, res) {
   }
 });
 
-router.get('/articles/:id', async function (req, res) {
+router.get('/articles/:id', restrictPremium, async function (req, res) {
   try {
-    const article = await articleService.getArticleById(req.params.id);
+    // const article = await articleService.getArticleById(req.params.id);
     const relatedArticles = await articleService.getRelatedArticles(req.params.id);
     const comments = await commentService.getCommentsByArticleId(req.params.id);
 
     res.render('guest/articleDetails', {
-      article,
+      article: req.article,
       relatedArticles,
       comments,
       user: req.session.authUser,
@@ -100,6 +105,30 @@ router.post('/articles/:id/comment', isAuthenticated, async function (req, res) 
   } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Failed to add comment' });
+  }
+});
+
+router.get('/articles/:id/download', restrictPremium, async function (req, res) {
+  try {
+    const article = await articleService.getArticleById(req.params.id);
+
+    if (!req.session.authUser || !req.session.authUser.valid_until) {
+      return res.redirect(`/articles/${req.params.id}`);
+    }
+
+    const isValidSubscription = new Date(req.session.authUser.valid_until) > new Date();
+    if (!isValidSubscription) {
+      return res.redirect(`/articles/${req.params.id}`);
+    }
+
+    const pdfBuffer = await pdfService.generateArticlePDF(article);
+
+    res.setHeader('Content-Disposition', `attachment; filename="${article.title}.pdf"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.log(error);
+    res.redirect(`/articles/${req.params.id}`);
   }
 });
 

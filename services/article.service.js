@@ -73,7 +73,7 @@ export default {
             .limit(10);
     },
 
-    async getFilteredArticles({ category, tag, search, limit, offset }) {
+    async getFilteredArticles({ category, tag, search, limit, offset, user }) {
         let query = db('articles as a') // fetch articles
             .select(
                 'a.id',
@@ -81,6 +81,7 @@ export default {
                 'a.summary',
                 'a.thumbnail',
                 'a.publication_date',
+                'a.is_premium',
                 'sub.name as subcategory_name',
                 'main.name as maincategory_name',
                 db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags')
@@ -90,9 +91,18 @@ export default {
             .leftJoin('article_tags as at', 'a.id', 'at.article_id')
             .leftJoin('tags as t', 'at.tag_id', 't.id')
             .where('a.status', 'published')
-            .groupBy('a.id', 'sub.name', 'main.name')
+            .groupBy('a.id', 'sub.name', 'main.name') 
             .limit(limit)
             .offset(offset);
+
+        if (user && user.valid_until && new Date(user.valid_until) > new Date()) {
+            query = query
+                .orderBy('a.is_premium', 'desc') // prioritize premium articles
+                .orderBy('a.publication_date', 'desc'); // then order by publication date
+        } else {
+            query = query.orderBy('a.publication_date', 'desc');
+        }
+        
     
         if (category) {
             query = query.where(function() {
@@ -165,6 +175,7 @@ export default {
             'a.content',
             'a.thumbnail',
             'a.publication_date',
+            'is_premium',
             'sub.name as subcategory_name',
             'main.name as maincategory_name',
             db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags') // Fetch and concatenate tags

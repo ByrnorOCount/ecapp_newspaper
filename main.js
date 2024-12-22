@@ -15,6 +15,7 @@ import adminRouter from './routes/admin.route.js';
 import authRoutes from './routes/auth.route.js';
 
 import { authAdmin } from './middlewares/auth.mdw.js';
+import userService from './services/user.service.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -50,6 +51,12 @@ app.engine('hbs', engine({
           return d.toISOString().split('T')[0]; // YYYY-MM-DD mode
       }
       return d.toLocaleDateString(); // default MM-DD-YYYY mode
+    },
+    date() {
+      return new Date();
+    },
+    date(value) {
+      return new Date(value); 
     },
     section: hbs_sections(),
     add: (a, b) => a + b,
@@ -94,8 +101,14 @@ app.use(async function (req, res, next) {
   if (!req.session.auth) {
       req.session.auth = false;
   }
+  if (req.session.authUser) {
+      const userId = req.session.authUser.id;
+      const userWithSubscription = await userService.findByIdWithSubscription(userId);
+
+      req.session.authUser = userWithSubscription;
+      res.locals.authUser = userWithSubscription;
+  }
   res.locals.auth = req.session.auth;
-  res.locals.authUser = req.session.authUser;
   next();
 });
 

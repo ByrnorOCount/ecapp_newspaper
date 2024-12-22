@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { isAuthenticated } from '../middlewares/auth.mdw.js';
 import userService from '../services/user.service.js';
 import otpService from '../services/otp.service.js';
+import subscriptionService from '../services/subscription.service.js';
 
 const router = express.Router();
 
@@ -94,7 +95,7 @@ router.post('/forgot-password', async function (req, res) {
         req.session.otp = otp;
         req.session.email = email;
 
-        res.render('auth/verify-otp', { email });
+        res.render('account/verify-otp', { email });
     } catch (err) {
         console.error(err);
         res.status(500).send('Error sending OTP.');
@@ -162,6 +163,51 @@ router.post('/profile/update-info', isAuthenticated, async function (req, res) {
       console.error(err);
       res.status(500).send('Error updating information.');
   }
+});
+
+router.post('/profile/subscribe', async function (req, res) {
+    try {
+        const userId = req.session.authUser.id;
+        const validUntil = await subscriptionService.subscribe(userId);
+
+        req.session.authUser.valid_until = validUntil; // Update session
+        req.flash('success', 'Subscription successfully started!');
+        res.redirect('/profile');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Could not start subscription. Please try again.');
+        res.redirect('/profile');
+    }
+});
+
+router.post('/profile/extend', async function (req, res) {
+    try {
+        const userId = req.session.authUser.id;
+        const validUntil = await subscriptionService.extendSubscription(userId);
+
+        req.session.authUser.valid_until = validUntil; // Update session
+        req.flash('success', 'Subscription extended!');
+        res.redirect('/profile');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Could not extend subscription. Please try again.');
+        res.redirect('/profile');
+    }
+});
+
+router.post('/profile/unsubscribe', async function (req, res) {
+    try {
+        const userId = req.session.authUser.id;
+        await subscriptionService.unsubscribe(userId);
+
+        req.session.authUser.valid_until = null; // Update session
+        req.flash('success', 'Unsubscribed successfully!');
+        res.redirect('/profile');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Could not unsubscribe. Please try again.');
+        res.redirect('/profile');
+    }
 });
 
 export default router;
