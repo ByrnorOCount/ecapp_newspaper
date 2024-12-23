@@ -54,8 +54,6 @@ router.get('/articles', async function (req, res) {
             user: req.session.authUser
           }) : { articles, total };
           
-    console.log('User valid_until:', req.session.authUser?.valid_until);
-
     res.render('guest/articleList', {
       articles: validArticles,
       totalArticles: total,
@@ -75,7 +73,6 @@ router.get('/articles', async function (req, res) {
 
 router.get('/articles/:id', restrictPremium, async function (req, res) {
   try {
-    // const article = await articleService.getArticleById(req.params.id);
     const relatedArticles = await articleService.getRelatedArticles(req.params.id);
     const comments = await commentService.getCommentsByArticleId(req.params.id);
 

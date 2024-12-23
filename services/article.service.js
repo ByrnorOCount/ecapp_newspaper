@@ -163,6 +163,12 @@ export default {
         return await db('categories').select('name').orderBy('name');
     },
 
+    async getCategoriesWithId() {
+        return await db('categories')
+        .select('id', 'name')
+        .orderBy('name');
+    },
+
     async getTags() {
         return await db('tags').select('name').orderBy('name');
     },
@@ -178,12 +184,14 @@ export default {
             'is_premium',
             'sub.name as subcategory_name',
             'main.name as maincategory_name',
-            db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags') // Fetch and concatenate tags
+            db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags'),
+            'u.full_name as writer_name'
             )
             .leftJoin('categories as sub', 'a.category_id', 'sub.id')
             .leftJoin('categories as main', 'sub.parent_id', 'main.id')
             .leftJoin('article_tags as at', 'a.id', 'at.article_id')
             .leftJoin('tags as t', 'at.tag_id', 't.id')
+            .leftJoin('users as u', 'a.writer_id', 'u.id')
             .where('a.id', id)
             .andWhere('a.status', 'published')
             .groupBy('a.id', 'sub.name', 'main.name')
@@ -216,5 +224,85 @@ export default {
             .andWhere('a.category_id', article.category_id) // Match articles from the same category
             .orderBy('a.publication_date', 'desc') // Most recent first
             .limit(limit);
+    },
+
+    async submitArticle(writerId, { title, summary, content, category, thumbnail, tags }) {
+        console.log('Inputs:', { writerId, title, summary, content, category, thumbnail, tags });
+    
+        const categoryId = parseInt(category, 10);
+        if (!categoryId || isNaN(categoryId)) {
+            throw new Error(`Invalid category ID: "${category}"`);
+        }
+    
+        const [articleId] = await db('articles').insert({
+            title,
+            summary,
+            content,
+            category_id: categoryId,
+            thumbnail,
+            writer_id: writerId,
+            status: 'pending',
+        });
+    
+        if (tags && tags.length > 0) {
+            const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
+            const tagIds = tagRecords.map((tag) => tag.id);
+    
+            await db('article_tags').insert(
+                tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
+            );
+        }
+    
+        return articleId;
+    },    
+
+    async getArticlesByWriter(writerId) {
+        return await db('articles as a')
+        .select(
+            'a.id',
+            'a.title',
+            'a.status',
+            'a.publication_date',
+            'a.created_at',
+            'c.name as category_name'
+        )
+        .leftJoin('categories as c', 'a.category_id', 'c.id')
+        .where('a.writer_id', writerId)
+        .orderBy('a.created_at', 'desc');
+    },
+
+    async updateArticle(articleId, { title, summary, content, category, tags, thumbnail }) {
+        const categoryRecord = await db('categories')
+        .select('id')
+        .where('name', category)
+        .first();
+
+        if (!categoryRecord) {
+        throw new Error(`Category "${category}" not found`);
+        }
+
+        const categoryId = categoryRecord.id;
+
+        await db('articles')
+        .where('id', articleId)
+        .update({
+            title,
+            summary,
+            content,
+            category_id: categoryId,
+            thumbnail,
+            updated_at: db.fn.now(),
+        });
+
+        if (tags && tags.length > 0) {
+            await db('article_tags').where('article_id', articleId).delete();
+
+            const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
+            const tagIds = tagRecords.map((tag) => tag.id);
+
+            await db('article_tags').insert(
+                tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
+            );
+        }
     },
 };

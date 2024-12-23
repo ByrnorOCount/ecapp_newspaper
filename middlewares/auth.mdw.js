@@ -10,9 +10,19 @@ export default function (req, res, next) {
     next();
 }
 
-export function authAdmin (req, res, next) {
-    //tba
+export function restrictToRole(role) {
+  return function (req, res, next) {
+    if (!req.session.auth || !req.session.authUser) {
+      return res.redirect('/login');
+    }
+
+    if (req.session.authUser.role !== role && req.session.authUser.role !== 'admin') {
+      console.error(`Access denied: user role is ${req.session.authUser?.role}`);
+      return res.redirect('/login');
+    }
+
     next();
+  };
 }
 
 passport.use(new LocalStrategy(
@@ -91,9 +101,7 @@ export async function restrictPremium(req, res, next) {
       req.article = article;
 
       if (article.is_premium) {
-
           const authUser = req.session.authUser;
-
           if (!authUser) {
               req.article.content = 'This is premium content. Please sign in and subscribe to view it.';
           } else {
@@ -103,10 +111,7 @@ export async function restrictPremium(req, res, next) {
                   req.article.content = 'This is premium content. Please subscribe to view it.';
               }
           }
-      } else {
-          console.log("Article is not premium. No restrictions applied.");
       }
-
       next();
   } catch (error) {
       console.error("Error in restrictPremium middleware:", error);

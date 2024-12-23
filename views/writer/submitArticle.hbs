@@ -1,0 +1,65 @@
+{{#section 'js'}}
+<script src="https://cdn.ckeditor.com/4.25.0/standard/ckeditor.js"></script>
+<script>
+  CKEDITOR.replace('editor', {
+    toolbar: [
+      { name: 'basicstyles', items: ['Bold', 'Italic'] },
+      { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+      { name: 'insert', items: ['Image', 'Link'] },
+      { name: 'styles', items: ['Format'] },
+      { name: 'tools', items: ['Maximize'] }
+    ],
+    height: 300
+  });
+</script>
+{{/section}}
+
+<form action="/writer/articles" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
+  <h2 class="text-center mb-4">Submit an Article</h2>
+  <div class="form-group">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" class="form-control" placeholder="Enter the article title" required>
+  </div>
+  <div class="form-group">
+    <label for="summary">Summary:</label>
+    <textarea id="summary" name="summary" class="form-control" placeholder="Provide a short summary" rows="3" required></textarea>
+  </div>
+  <div class="form-group">
+    <label for="content">Content:</label>
+    <textarea id="editor" name="content" class="form-control" rows="6" required></textarea>
+  </div>
+  <div class="form-group">
+    <label for="category">Category:</label>
+    <select id="category" name="category" class="form-control" required>
+      <option value="0">Select a category</option>
+      {{#each categories}}
+        <option value="{{this.id}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="tags">Tags:</label>
+    <input type="text" id="tags" name="tags" class="form-control" placeholder="Enter tags separated by commas">
+  </div>
+  <div class="form-group">
+    <label for="thumbnail">Upload Image:</label>
+    <input type="file" id="thumbnail" name="thumbnail" class="form-control-file" accept="image/*">
+  </div>
+  <div class="text-center">
+    <button type="submit" class="btn btn-primary btn-lg">Submit Article</button>
+  </div>
+</form>
+
+<h2 class="text-center mt-3">My articles</h2>
+<div class="list-group container mt-3">
+  {{#each articles}}
+    <div class="list-group-item">
+      <h5><a href="/articles/{{this.id}}">{{this.title}}</a></h5>
+      <p>Status: <span class="badge badge-secondary">{{this.status}}</span></p>
+      <p>Submitted on: {{formatDate this.created_at}}</p>
+      {{#if (or (eq this.status 'Rejected') (eq this.status 'Not Approved'))}}
+        <a href="/writer/articles/{{this.id}}/edit" class="btn btn-sm btn-warning">Edit</a>
+      {{/if}}
+    </div>
+  {{/each}}
+</div>

@@ -8,13 +8,12 @@ import passport from 'passport';
 import flash from 'connect-flash';
 
 import guestRouter from './routes/guest.route.js';
-import subscriberRouter from './routes/subscriber.route.js';
 import writerRouter from './routes/writer.route.js';
 import editorRouter from './routes/editor.route.js';
 import adminRouter from './routes/admin.route.js';
-import authRoutes from './routes/auth.route.js';
+import authRouter from './routes/auth.route.js';
 
-import { authAdmin } from './middlewares/auth.mdw.js';
+import { restrictToRole } from './middlewares/auth.mdw.js';
 import userService from './services/user.service.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +37,7 @@ app.use(flash());
 app.use(express.urlencoded({ //POST requests
   extended: true 
 }));
+app.use(express.json());
 
 app.use('/static', express.static('static'));
 
@@ -84,9 +84,15 @@ app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
 // middlewares
+app.use(function (err, req, res, next) {
+  console.error('Unhandled error:', err);
+  res.status(500).send('Internal server error');
+});
+
 app.use(function (req, res, next) {
   res.locals.successMessages = req.flash('success');
   res.locals.errorMessages = req.flash('error');
+  console.log('Request Path:', req.path);
   next();
 });
 
@@ -113,11 +119,10 @@ app.use(async function (req, res, next) {
 });
 
 app.use('/', guestRouter);
-app.use('/subscriber', subscriberRouter);
-app.use('/writer', writerRouter);
-app.use('/editor', editorRouter);
-app.use('/admin', authAdmin, adminRouter);
-app.use('/', authRoutes);
+app.use('/writer', restrictToRole('writer'), writerRouter);
+app.use('/editor', restrictToRole('editor'), editorRouter);
+app.use('/admin', restrictToRole('admin'), adminRouter);
+app.use('/', authRouter);
 
 app.listen(3000, function () {
   console.log('Newspaper App is running at http://localhost:3000');
