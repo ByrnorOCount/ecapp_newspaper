@@ -11,3 +11,21 @@
   //tba
 </script>
 {{/section}}
+
+<form action="/admin/assign-categories" method="POST">
+  <label for="editor">Editor:</label>
+  <select name="editorId" required>
+    {{#each editors}}
+      <option value="{{this.id}}">{{this.name}}</option>
+    {{/each}}
+  </select>
+
+  <label for="categories">Categories:</label>
+  <select name="categoryIds" multiple required>
+    {{#each categories}}
+      <option value="{{this.id}}">{{this.name}}</option>
+    {{/each}}
+  </select>
+
+  <button type="submit">Assign Categories</button>
+</form>

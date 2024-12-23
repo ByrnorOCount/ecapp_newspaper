@@ -11,3 +11,33 @@
   //tba
 </script>
 {{/section}}
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each draftArticles}}
+      <tr>
+        <td>{{this.title}}</td>
+        <td>{{this.category_name}}</td>
+        <td>
+          <form action="/editor/approve/{{this.id}}" method="POST">
+            <input type="text" name="category" placeholder="Edit Category" required>
+            <input type="text" name="tags" placeholder="Edit Tags">
+            <input type="datetime-local" name="publicationDate" required>
+            <button type="submit">Approve</button>
+          </form>
+          <form action="/editor/reject/{{this.id}}" method="POST">
+            <textarea name="rejectionNotes" placeholder="Reason for rejection" required></textarea>
+            <button type="submit">Reject</button>
+          </form>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

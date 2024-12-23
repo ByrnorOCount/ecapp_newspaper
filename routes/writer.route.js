@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import articleService from '../services/article.service.js';
+import writerService from '../services/writer.service.js';
 import { restrictToRole } from '../middlewares/auth.mdw.js';
 
 const router = express.Router();
@@ -18,7 +19,7 @@ const upload = multer({ storage });
 
 router.get('/articles', restrictToRole('writer'), async function (req, res) {
     try {
-      const articles = await articleService.getArticlesByWriter(req.session.authUser.id);
+      const articles = await writerService.getArticlesByWriter(req.session.authUser.id);
       const categories = await articleService.getCategoriesWithId();
       res.render('writer/submitArticle', {
         articles,
@@ -31,13 +32,11 @@ router.get('/articles', restrictToRole('writer'), async function (req, res) {
 });
 
 router.post('/articles', restrictToRole('writer'), upload.single('thumbnail'), async function (req, res) {
-    console.log('Request Body:', req.body); 
     const { title, summary, content, category, tags } = req.body;
     const parsedCategory = parseInt(category, 10);
-    console.log('Parsed Category:', parsedCategory);
     const thumbnail = req.file ? `/static/images/${req.file.filename}` : null;
     try {
-      await articleService.submitArticle(req.session.authUser.id, {
+      await writerService.submitArticle(req.session.authUser.id, {
         title,
         summary,
         content,
@@ -56,7 +55,7 @@ router.post('/articles/:id/edit', async function (req, res) {
     const { title, summary, content, category, tags } = req.body;
     const thumbnail = req.file ? `/static/images/${req.file.filename}` : null;
     try {
-      await articleService.updateArticle(req.params.id, {
+      await writerService.updateArticle(req.params.id, {
         title,
         summary,
         content,

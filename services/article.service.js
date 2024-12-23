@@ -226,83 +226,24 @@ export default {
             .limit(limit);
     },
 
-    async submitArticle(writerId, { title, summary, content, category, thumbnail, tags }) {
-        console.log('Inputs:', { writerId, title, summary, content, category, thumbnail, tags });
-    
-        const categoryId = parseInt(category, 10);
-        if (!categoryId || isNaN(categoryId)) {
-            throw new Error(`Invalid category ID: "${category}"`);
-        }
-    
-        const [articleId] = await db('articles').insert({
-            title,
-            summary,
-            content,
-            category_id: categoryId,
-            thumbnail,
-            writer_id: writerId,
-            status: 'pending',
-        });
-    
-        if (tags && tags.length > 0) {
-            const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
-            const tagIds = tagRecords.map((tag) => tag.id);
-    
-            await db('article_tags').insert(
-                tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
-            );
-        }
-    
-        return articleId;
-    },    
-
-    async getArticlesByWriter(writerId) {
-        return await db('articles as a')
-        .select(
-            'a.id',
-            'a.title',
-            'a.status',
-            'a.publication_date',
-            'a.created_at',
-            'c.name as category_name'
-        )
-        .leftJoin('categories as c', 'a.category_id', 'c.id')
-        .where('a.writer_id', writerId)
-        .orderBy('a.created_at', 'desc');
+    async getDraftArticles(categories) {
+        return db.query(
+          `SELECT * FROM articles WHERE status = 'draft' AND category_id IN (?)`,
+          [categories]
+        );
     },
 
-    async updateArticle(articleId, { title, summary, content, category, tags, thumbnail }) {
-        const categoryRecord = await db('categories')
-        .select('id')
-        .where('name', category)
-        .first();
-
-        if (!categoryRecord) {
-        throw new Error(`Category "${category}" not found`);
+    async getDraftArticlesByCategories(categoryIds) {
+        if (categoryIds.length === 0) {
+          return [];
         }
-
-        const categoryId = categoryRecord.id;
-
-        await db('articles')
-        .where('id', articleId)
-        .update({
-            title,
-            summary,
-            content,
-            category_id: categoryId,
-            thumbnail,
-            updated_at: db.fn.now(),
-        });
-
-        if (tags && tags.length > 0) {
-            await db('article_tags').where('article_id', articleId).delete();
-
-            const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
-            const tagIds = tagRecords.map((tag) => tag.id);
-
-            await db('article_tags').insert(
-                tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
-            );
-        }
-    },
+      
+        return db.query(
+          `SELECT a.*, c.name AS category_name
+           FROM articles a
+           JOIN categories c ON a.category_id = c.id
+           WHERE a.status = 'draft' AND a.category_id IN (?)`,
+          [categoryIds]
+        );
+    },      
 };
