@@ -1,0 +1,31 @@
+<h2>Manage Users</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Subscription Expiry</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{full_name}}</td>
+            <td>{{email}}</td>
+            <td>{{role}}</td>
+            <td>{{formatDate subscriber_expiry}}</td>
+            <td>
+                {{#if (eq role "subscriber")}}
+                <form method="POST" action="/admin/users/renew/{{id}}" class="d-inline">
+                    <button type="submit" class="btn btn-primary btn-sm">Renew Subscription</button>
+                </form>
+                {{/if}}
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

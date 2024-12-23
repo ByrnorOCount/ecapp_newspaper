@@ -5,6 +5,7 @@ import writerService from '../services/writer.service.js';
 import { restrictToRole } from '../middlewares/auth.mdw.js';
 
 const router = express.Router();
+router.use(restrictToRole('writer'));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -17,7 +18,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.get('/articles', restrictToRole('writer'), async function (req, res) {
+router.get('/articles', async function (req, res) {
     try {
       const articles = await writerService.getArticlesByWriter(req.session.authUser.id);
       const categories = await articleService.getCategoriesWithId();
@@ -31,7 +32,7 @@ router.get('/articles', restrictToRole('writer'), async function (req, res) {
     }
 });
 
-router.post('/articles', restrictToRole('writer'), upload.single('thumbnail'), async function (req, res) {
+router.post('/articles', upload.single('thumbnail'), async function (req, res) {
     const { title, summary, content, category, tags } = req.body;
     const parsedCategory = parseInt(category, 10);
     const thumbnail = req.file ? `/static/images/${req.file.filename}` : null;

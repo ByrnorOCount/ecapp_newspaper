@@ -69,23 +69,22 @@ export default {
 
     async updatePassword(userId, currentPassword, newPassword) {
         const user = await db('users').where('id', userId).first();
-
+    
         if (!user) {
             throw new Error('User not found');
         }
-
+    
         const isMatch = await bcrypt.compare(currentPassword, user.password);
-
         if (!isMatch) {
             throw new Error('Incorrect current password');
         }
-
+    
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-
+    
         await db('users')
             .where('id', userId)
             .update({ password: hashedPassword });
-
+    
         return { message: 'Password updated successfully' };
     },
 

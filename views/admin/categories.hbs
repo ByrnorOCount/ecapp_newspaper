@@ -1,0 +1,46 @@
+<h2>Manage Categories</h2>
+<div class="mb-4">
+    <form id="add-category-form" method="POST" action="/admin/categories/add">
+        <div class="form-row">
+            <div class="col">
+                <input type="text" name="name" class="form-control" placeholder="Category Name" required>
+            </div>
+            <div class="col">
+                <select name="parent_id" class="form-control">
+                    <option value="">No Parent</option>
+                    {{#each categories}}
+                    <option value="{{this.id}}">{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-success">Add</button>
+            </div>
+        </div>
+    </form>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Parent</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each categories}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>{{parent_name}}</td>
+            <td>
+                <form method="POST" action="/admin/categories/delete/{{id}}" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                <a href="/admin/categories/edit/{{id}}" class="btn btn-primary btn-sm">Edit</a>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

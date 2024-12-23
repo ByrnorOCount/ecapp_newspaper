@@ -129,16 +129,8 @@ router.post('/profile/change-password', isAuthenticated, async function (req, re
   const userId = req.session.authUser.id;
 
   try {
-      const user = await userService.findById(userId);
-
-      const isMatch = await bcrypt.compare(current_password, user.password);
-      if (!isMatch) {
-          return res.status(400).send('Current password is incorrect.');
-      }
-
-      const hashedPassword = await bcrypt.hash(new_password, 10);
-      await userService.updatePassword(userId, hashedPassword);
-
+      await userService.updatePassword(userId, current_password, new_password);
+      req.flash('success', 'Successfully changed password!');
       res.redirect('/profile');
   } catch (error) {
       console.error(error);

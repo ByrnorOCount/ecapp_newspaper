@@ -1,0 +1,35 @@
+<h2>Manage Articles</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Premium</th>
+            <th>Views</th>
+            <th>Publication Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each articles}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{title}}</td>
+            <td>{{status}}</td>
+            <td>{{is_premium}}</td>
+            <td>{{views}}</td>
+            <td>{{formatDate publication_date}}</td>
+            <td>
+                <form method="POST" action="/admin/articles/update/{{id}}" class="d-inline">
+                    <select name="status" class="form-control">
+                        <option value="draft" {{selected status "draft"}}>Draft</option>
+                        <option value="published" {{selected status "published"}}>Published</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Update</button>
+                </form>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

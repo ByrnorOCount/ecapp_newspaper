@@ -1,0 +1,36 @@
+<h2>Manage Tags</h2>
+<div class="mb-4">
+    <form id="add-tag-form" method="POST" action="/admin/tags/add">
+        <div class="form-row">
+            <div class="col">
+                <input type="text" name="name" class="form-control" placeholder="Tag Name" required>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-success">Add</button>
+            </div>
+        </div>
+    </form>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each tags}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>
+                <form method="POST" action="/admin/tags/delete/{{id}}" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                <a href="/admin/tags/edit/{{id}}" class="btn btn-primary btn-sm">Edit</a>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

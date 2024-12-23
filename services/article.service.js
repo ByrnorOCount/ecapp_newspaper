@@ -226,24 +226,33 @@ export default {
             .limit(limit);
     },
 
-    async getDraftArticles(categories) {
-        return db.query(
-          `SELECT * FROM articles WHERE status = 'draft' AND category_id IN (?)`,
-          [categories]
-        );
+    async getDraftArticles() {
+        return db('articles')
+            .where('status', 'draft')
+            .select('*');
     },
 
+    async getPublishedArticles() {
+        return db('articles')
+            .where('status', 'published')
+            .select('*');
+    },
+
+    async getRejectedArticles() {
+        return db('articles')
+            .where('status', 'rejected')
+            .select('*');
+    },
+    
     async getDraftArticlesByCategories(categoryIds) {
         if (categoryIds.length === 0) {
-          return [];
+            return [];
         }
-      
-        return db.query(
-          `SELECT a.*, c.name AS category_name
-           FROM articles a
-           JOIN categories c ON a.category_id = c.id
-           WHERE a.status = 'draft' AND a.category_id IN (?)`,
-          [categoryIds]
-        );
-    },      
+    
+        return db('articles as a')
+            .join('categories as c', 'a.category_id', 'c.id')
+            .where('a.status', 'draft')
+            .whereIn('a.category_id', categoryIds)
+            .select('a.*', 'c.name as category_name');
+    } 
 };

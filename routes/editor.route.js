@@ -4,8 +4,9 @@ import editorService from '../services/editor.service.js';
 import { restrictToRole } from '../middlewares/auth.mdw.js';
 
 const router = express.Router();
+router.use(restrictToRole('editor'));
 
-router.get('/drafts', restrictToRole('editor'), async function (req, res) {
+router.get('/drafts', async function (req, res) {
     try {
         const editorId = req.session.authUser.id;
         const assignedCategories = await editorService.getAssignedCategories(editorId);
@@ -17,7 +18,7 @@ router.get('/drafts', restrictToRole('editor'), async function (req, res) {
       }
 });
 
-router.post('/approve/:id', restrictToRole('editor'), async function (req, res) {
+router.post('/approve/:id', async function (req, res) {
     const { id } = req.params;
     const { category, tags, publicationDate } = req.body;
   
@@ -42,7 +43,7 @@ router.post('/approve/:id', restrictToRole('editor'), async function (req, res) 
     }
 });
 
-router.post('/reject/:id', restrictToRole('editor'), async function (req, res) {
+router.post('/reject/:id', async function (req, res) {
     const { id } = req.params;
     const { rejectionNotes } = req.body;
   

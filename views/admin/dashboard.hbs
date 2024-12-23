@@ -12,16 +12,28 @@
 </script>
 {{/section}}
 
+<h1>Admin Dashboard</h1>
+<nav>
+    <ul>
+        <li><a href="/admin/categories">Manage Categories</a></li>
+        <li><a href="/admin/tags">Manage Tags</a></li>
+        <li><a href="/admin/articles">Manage Articles</a></li>
+        <li><a href="/admin/users">Manage Users</a></li>
+    </ul>
+</nav>
+
 <form action="/admin/assign-categories" method="POST">
-  <label for="editor">Editor:</label>
-  <select name="editorId" required>
+  <label for="editors">Editor:</label>
+  <select name="editors" required>
+    <option value="0">Select an Editor</option>
     {{#each editors}}
-      <option value="{{this.id}}">{{this.name}}</option>
+      <option value="{{this.id}}">{{this.full_name}}</option>
     {{/each}}
   </select>
 
   <label for="categories">Categories:</label>
-  <select name="categoryIds" multiple required>
+  <select name="categories" multiple required>
+    <option value="0">Select a Category</option>
     {{#each categories}}
       <option value="{{this.id}}">{{this.name}}</option>
     {{/each}}
