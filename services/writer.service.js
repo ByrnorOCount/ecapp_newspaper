@@ -1,14 +1,12 @@
 import db from '../utils/db.js';
 
 export default {
-    async submitArticle(writerId, { title, summary, content, category, thumbnail, tags }) {
-        console.log('Inputs:', { writerId, title, summary, content, category, thumbnail, tags });
-
+    async submitArticle(writerId, { title, summary, content, category, thumbnail, is_premium, tags }) {
         const categoryId = parseInt(category, 10);
         if (!categoryId || isNaN(categoryId)) {
             throw new Error(`Invalid category ID: "${category}"`);
         }
-
+    
         const [articleId] = await db('articles').insert({
             title,
             summary,
@@ -16,20 +14,21 @@ export default {
             category_id: categoryId,
             thumbnail,
             writer_id: writerId,
+            is_premium: is_premium || false,
             status: 'pending',
         });
-
+    
         if (tags && tags.length > 0) {
             const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
             const tagIds = tagRecords.map((tag) => tag.id);
-
+    
             await db('article_tags').insert(
                 tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
             );
         }
-
+    
         return articleId;
-    },    
+    },
 
     async getArticlesByWriter(writerId) {
         return await db('articles as a')
@@ -46,7 +45,7 @@ export default {
         .orderBy('a.created_at', 'desc');
     },
 
-    async updateArticle(articleId, { title, summary, content, category_id, tags, thumbnail }) {
+    async updateArticle(articleId, { title, summary, content, category_id, thumbnail, is_premium, tags }) {
         await db('articles')
         .where('id', articleId)
         .update({
@@ -55,20 +54,21 @@ export default {
             content,
             category_id,
             thumbnail,
+            is_premium: is_premium || false,
             status: 'draft', // reset status if was rejected
             rejection_notes: null,
             updated_at: db.fn.now(),
         });
-
+    
         if (tags && tags.length > 0) {
             await db('article_tags').where('article_id', articleId).delete();
-
+    
             const tagRecords = await db('tags').select('id', 'name').whereIn('name', tags);
             const tagIds = tagRecords.map((tag) => tag.id);
-
+    
             await db('article_tags').insert(
                 tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
             );
         }
-    },
+    }
 };

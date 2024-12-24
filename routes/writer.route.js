@@ -34,23 +34,26 @@ router.get('/', async function (req, res) {
 });
 
 router.post('/', upload.single('thumbnail'), async function (req, res) {
-    const { title, summary, content, category, tags } = req.body;
-    const parsedCategory = parseInt(category, 10);
-    const thumbnail = req.file ? `${req.file.filename}` : null;
-    try {
-      await writerService.submitArticle(req.session.authUser.id, {
-        title,
-        summary,
-        content,
-        category: parsedCategory,
-        thumbnail,
-        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
-      });
-      res.redirect('/');
-    } catch (err) {
-      console.log(err);
-      res.status(500).send('Error submitting article');
-    }
+  const { title, summary, content, category, tags, is_premium } = req.body;
+  const parsedCategory = parseInt(category, 10);
+  const thumbnail = req.file ? `${req.file.filename}` : null;
+  const premiumStatus = is_premium === 'on';
+
+  try {
+    await writerService.submitArticle(req.session.authUser.id, {
+      title,
+      summary,
+      content,
+      category: parsedCategory,
+      thumbnail,
+      is_premium: premiumStatus,
+      tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+    });
+    res.redirect('/writer');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error submitting article');
+  }
 });
 
 router.get('/:id/edit', async function (req, res) {
@@ -70,18 +73,19 @@ router.get('/:id/edit', async function (req, res) {
 });
 
 router.post('/:id/edit', upload.single('thumbnail'), async function (req, res) {
-  const articleId = req.params.id;
-  const { title, summary, content, category, tags } = req.body;
+  const { title, summary, content, category, tags, is_premium } = req.body;
   const parsedCategory = parseInt(category, 10);
   const thumbnail = req.file ? `${req.file.filename}` : null;
+  const premiumStatus = is_premium === 'on';
 
   try {
-      await writerService.updateArticle(articleId, {
+      await writerService.updateArticle(req.params.id, {
           title,
           summary,
           content,
           category_id: parsedCategory,
           thumbnail,
+          is_premium: premiumStatus,
           tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
       });
       res.redirect('/writer');
