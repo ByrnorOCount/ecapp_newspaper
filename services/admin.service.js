@@ -36,64 +36,110 @@ export default {
     },    
 
     async getCategories() {
-        return await db('categories').select('name').orderBy('name');
+        return await db('categories as c')
+            .leftJoin('categories as p', 'c.parent_id', 'p.id')
+            .select('c.id', 'c.name', 'c.parent_id', 'p.name as parent_name')
+            .orderBy('c.id');
+    },
+    
+    async addCategory(name, parentId = null) {
+        return await db('categories')
+            .insert({
+                name: name,
+                parent_id: parentId || null,
+            });
     },
 
-    async addCategory(data) {
-        const { name, parent_id } = data;
-        const [id] = await db('categories').insert({ name, parent_id }).returning('id');
-        return { id };
-    },
-
-    async updateCategory(id, data) {
-        const { name, parent_id } = data;
-        await db('categories').where({ id }).update({ name, parent_id });
-        return;
+    async updateCategory(id, name, parentId = null) {
+        return await db('categories')
+            .where('id', id)
+            .update({
+                name: name,
+                parent_id: parentId,
+            });
     },
 
     async deleteCategory(id) {
-        await db('categories').where({ id }).del();
-        return;
+        return await db('categories')
+            .where('id', id)
+            .del();
     },
 
     async getTags() {
-        return await db('tags').select('*');
+        return await db('tags')
+            .select('id', 'name')
+            .orderBy('name');
     },
 
-    async addTag(data) {
-        const { name } = data;
-        const [id] = await db('tags').insert({ name }).returning('id');
-        return { id };
+    async addTag(name) {
+        return await db('tags')
+            .insert({ name: name })
+            .returning('id');
     },
 
-    async updateTag(id, data) {
-        const { name } = data;
-        await db('tags').where({ id }).update({ name });
-        return;
+    async updateTag(id, name) {
+        return await db('tags')
+            .where('id', id)
+            .update({ name: name });
     },
 
     async deleteTag(id) {
-        await db('tags').where({ id }).del();
-        return;
+        return await db('tags')
+            .where('id', id)
+            .del();
     },
 
     async getArticles() {
-        return await db('articles')
-            .select('id', 'title', 'status', 'is_premium', 'views', 'publication_date');
+        return await db('articles as a')
+            .select(
+                'a.id',
+                'a.title',
+                'a.status',
+                'a.is_premium',
+                'a.views',
+                'a.publication_date',
+                'c.name as category_name',
+                'u.full_name as writer_name'
+            )
+            .leftJoin('categories as c', 'a.category_id', 'c.id')
+            .leftJoin('users as u', 'a.writer_id', 'u.id')
+            .orderBy('a.publication_date', 'desc');
     },
 
     async updateArticleStatus(id, status) {
-        await db('articles').where({ id }).update({ status });
-        return;
+        return await db('articles')
+            .where('id', id)
+            .update({ status: status });
     },
 
     async getUsers() {
-        return await db('users').select('id', 'full_name', 'email', 'role', 'created_at');
+        return await db('users')
+            .select('id', 'full_name', 'email', 'role', 'created_at')
+            .orderBy('created_at', 'desc');
     },
 
     async renewSubscriber(id) {
-        const newExpiry = knex.raw('NOW() + INTERVAL 7 DAY');
-        await db('users').where({ id }).update({ subscriber_expiry: newExpiry });
-        return;
-    }
+        return await db('users')
+            .where('id', id)
+            .update({ subscriber_expiry: db.raw('NOW() + INTERVAL 7 DAY') });
+    },
+
+    async assignCategories(editorId, categoryIds) {
+        return await db.transaction(async (trx) => {
+            await db('editor_categories')
+                .where({ editor_id: editorId })
+                .delete()
+                .transacting(trx);
+
+            if (categoryIds.length > 0) {
+                const assignments = categoryIds.map((categoryId) => ({
+                    editor_id: editorId,
+                    category_id: categoryId,
+                }));
+                await db('editor_categories')
+                    .insert(assignments)
+                    .transacting(trx);
+            }
+        });
+    },
 }
