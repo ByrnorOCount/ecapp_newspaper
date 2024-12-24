@@ -6,7 +6,7 @@ import { restrictToRole } from '../middlewares/auth.mdw.js';
 const router = express.Router();
 router.use(restrictToRole('editor'));
 
-router.get('/drafts', async function (req, res) {
+router.get('/', async function (req, res) {
   try {
       const editorId = req.session.authUser.id;
       const assignedCategories = await editorService.getAssignedCategories(editorId);
@@ -50,14 +50,15 @@ router.post('/approve/:id', async function (req, res) {
 
       const tagsArray = Array.isArray(tags) ? tags : [];
 
-      await editorService.approveArticle(id, {
+      await editorService.approveArticle({
+          articleId: id,
           category: parsedCategory,
           tags: tagsArray,
           publicationDate: parsedDate,
           editorId: req.session.authUser.id
       });
 
-      res.redirect('/editor/drafts');
+      res.redirect('/editor');
   } catch (err) {
       console.error(err);
       res.status(500).send('Error approving article');
@@ -73,9 +74,13 @@ router.post('/reject/:id', async function (req, res) {
           return res.status(400).send('Rejection notes cannot be empty');
       }
 
-      await editorService.rejectArticle(id, { rejectionNotes });
+      await editorService.rejectArticle({ 
+        articleId: id,
+        rejectionNotes,
+        editorId: req.session.authUser.id
+      });
 
-      res.redirect('/editor/drafts');
+      res.redirect('/editor');
   } catch (err) {
       console.error(err);
       res.status(500).send('Error rejecting article');

@@ -2,6 +2,7 @@
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th>Link</th>
             <th>ID</th>
             <th>Title</th>
             <th>Status</th>
@@ -14,6 +15,7 @@
     <tbody>
         {{#each articles}}
         <tr>
+            <td><a href="/articles/{{id}}">Link</a></td>
             <td>{{id}}</td>
             <td>{{title}}</td>
             <td>{{status}}</td>

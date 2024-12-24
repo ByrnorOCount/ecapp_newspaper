@@ -14,7 +14,7 @@
 </script>
 {{/section}}
 
-<form action="/writer/articles" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
+<form action="/writer" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
   <h2 class="text-center mb-4">Submit an Article</h2>
   <div class="form-group">
     <label for="title">Title:</label>
@@ -58,7 +58,7 @@
       <p>Category: {{this.category_name}}</p>
       <p>Submitted on: {{formatDate this.created_at}}</p>
       {{#if (or (eq this.status 'rejected') (eq this.status 'draft'))}}
-        <a href="/writer/articles/{{this.id}}/edit" class="btn btn-sm btn-warning">Edit</a>
+        <a href="/writer/{{this.id}}/edit" class="btn btn-sm btn-warning">Edit</a>
       {{/if}}
     </div>
   {{/each}}

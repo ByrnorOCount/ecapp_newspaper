@@ -28,7 +28,7 @@ export default {
             .select('t.name');
     },
 
-    async approveArticle(articleId, { category, tags, publicationDate, editorId }) {
+    async approveArticle({ articleId, category, tags, publicationDate, editorId }) {
         const trx = await db.transaction();
     
         try {
@@ -69,7 +69,7 @@ export default {
         }
     },
     
-    async rejectArticle(articleId, { rejectionNotes }, editorId) {
+    async rejectArticle({ articleId, rejectionNotes, editorId }) {
         return db('articles')
             .where('id', articleId)
             .update({
@@ -78,7 +78,7 @@ export default {
                 approved_by: editorId,
                 updated_at: db.fn.now()
             });
-    },    
+    },
 
     async getProcessedArticlesByEditor(editorId) {
         return db('articles as a')

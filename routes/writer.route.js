@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.get('/articles', async function (req, res) {
+router.get('/', async function (req, res) {
     try {
       const articles = await writerService.getArticlesByWriter(req.session.authUser.id);
       const categories = await articleService.getCategoriesWithId();
@@ -33,7 +33,7 @@ router.get('/articles', async function (req, res) {
     }
 });
 
-router.post('/articles', upload.single('thumbnail'), async function (req, res) {
+router.post('/', upload.single('thumbnail'), async function (req, res) {
     const { title, summary, content, category, tags } = req.body;
     const parsedCategory = parseInt(category, 10);
     const thumbnail = req.file ? `${req.file.filename}` : null;
@@ -46,19 +46,18 @@ router.post('/articles', upload.single('thumbnail'), async function (req, res) {
         thumbnail,
         tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
       });
-      res.redirect('/articles');
+      res.redirect('/');
     } catch (err) {
       console.log(err);
       res.status(500).send('Error submitting article');
     }
 });
 
-router.get('/articles/:id/edit', async function (req, res) {
+router.get('/:id/edit', async function (req, res) {
   try {
       const articleId = req.params.id;
       const article = await articleService.getArticleById(articleId);
       const categories = await articleService.getCategoriesWithId();
-      console.log(article);
 
       res.render('writer/editArticle', {
           article,
@@ -70,7 +69,7 @@ router.get('/articles/:id/edit', async function (req, res) {
   }
 });
 
-router.post('/articles/:id/edit', upload.single('thumbnail'), async function (req, res) {
+router.post('/:id/edit', upload.single('thumbnail'), async function (req, res) {
   const articleId = req.params.id;
   const { title, summary, content, category, tags } = req.body;
   const parsedCategory = parseInt(category, 10);
@@ -85,7 +84,7 @@ router.post('/articles/:id/edit', upload.single('thumbnail'), async function (re
           thumbnail,
           tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
       });
-      res.redirect('/writer/articles');
+      res.redirect('/writer');
   } catch (error) {
       console.error('Error updating article:', error);
       res.status(500).send('An error occurred while updating the article.');

@@ -14,7 +14,7 @@
 </script>
 {{/section}}
 
-<form action="/writer/articles/{{article.id}}/edit" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
+<form action="/writer/{{article.id}}/edit" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
   <h2 class="text-center mb-4">Edit Article</h2>
   
   {{#if article.rejection_notes}}

@@ -99,32 +99,52 @@
                         <i class="bi bi-file-earmark-text-fill"></i>
                         Articles</a>
                     </li>
-                    </li>
                     {{#if auth}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/profile">
-                        <i class="bi bi-person-fill"></i>
-                        Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <form action="/logout" method="POST">
-                            <button type="submit" class="nav-link logout-button">
-                                <i class="bi bi-box-arrow-right"></i>
-                                Logout
-                            </button>
-                        </form>
-                    </li>
+                        {{#if (eq authUser.role 'writer')}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/writer">
+                            <i class="bi bi-pencil-fill"></i>
+                            Write</a>
+                        </li>
+                        {{/if}}
+                        {{#if (eq authUser.role 'editor')}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/editor">
+                            <i class="bi bi-gear-fill"></i>
+                            Edit</a>
+                        </li>
+                        {{/if}}
+                        {{#if (eq authUser.role 'admin')}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            Dashboard</a>
+                        </li>
+                        {{/if}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">
+                            <i class="bi bi-person-fill"></i>
+                            Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/logout" method="POST">
+                                <button type="submit" class="nav-link logout-button">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
                     {{else}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        Sign In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/register">
-                        <i class="bi bi-person-plus-fill"></i>
-                        Sign Up</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">
+                            <i class="bi bi-person-plus-fill"></i>
+                            Sign Up</a>
+                        </li>
                     {{/if}}
                 </ul>
             </div>
