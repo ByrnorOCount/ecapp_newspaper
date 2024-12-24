@@ -13,23 +13,23 @@ router.get('/register', function (req, res) {
 });
 
 router.post('/register', async function (req, res) {
-  const { full_name, pen_name, email, password, date_of_birth } = req.body;
-
-  try {
-      const hashedPassword = bcrypt.hashSync(password, 10);
-      const user = await userService.registerUser({
-          full_name,
-          pen_name,
-          email,
-          password: hashedPassword,
-          date_of_birth,
-      }); // user needs to login after registration
-      req.flash('success', 'Registration successful! Please log in.');
-      res.redirect('/login');
-  } catch (error) {
-      req.flash('error', 'Email already in use or invalid data.');
-      res.redirect('/register');
-  }
+    const { full_name, pen_name, email, password, date_of_birth } = req.body;
+  
+    try {
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const user = await userService.registerUser({
+            fullName: full_name,
+            penName: pen_name,
+            email,
+            hashedPassword,
+            date_of_birth,
+        }); 
+        req.flash('success', 'Registration successful! Please log in.');
+        res.redirect('/login');
+    } catch (error) {
+        req.flash('error', 'Email already in use or invalid data.');
+        res.redirect('/register');
+    }
 });
 
 router.get('/login', function (req, res) {

@@ -178,12 +178,16 @@ export default {
             .select(
             'a.id',
             'a.title',
+            'a.summary',
             'a.content',
             'a.thumbnail',
             'a.publication_date',
-            'is_premium',
+            'a.is_premium',
             'sub.name as subcategory_name',
             'main.name as maincategory_name',
+            'a.views',
+            'a.status',
+            'a.rejection_notes',
             db.raw('GROUP_CONCAT(t.name ORDER BY t.name) as tags'),
             'u.full_name as writer_name'
             )
@@ -193,7 +197,6 @@ export default {
             .leftJoin('tags as t', 'at.tag_id', 't.id')
             .leftJoin('users as u', 'a.writer_id', 'u.id')
             .where('a.id', id)
-            .andWhere('a.status', 'published')
             .groupBy('a.id', 'sub.name', 'main.name')
             .first();
         
@@ -204,7 +207,6 @@ export default {
         const article = await db('articles as a')
             .select('a.category_id')
             .where('a.id', articleId)
-            .andWhere('a.status', 'published')
             .first();
     
         return await db('articles as a')
@@ -220,9 +222,9 @@ export default {
             .leftJoin('categories as sub', 'a.category_id', 'sub.id')
             .leftJoin('categories as main', 'sub.parent_id', 'main.id')
             .where('a.status', 'published')
-            .andWhere('a.id', '!=', articleId) // Exclude the current article
-            .andWhere('a.category_id', article.category_id) // Match articles from the same category
-            .orderBy('a.publication_date', 'desc') // Most recent first
+            .andWhere('a.id', '!=', articleId)
+            .andWhere('a.category_id', article.category_id)
+            .orderBy('a.publication_date', 'desc')
             .limit(limit);
     },
 
@@ -243,16 +245,4 @@ export default {
             .where('status', 'rejected')
             .select('*');
     },
-    
-    async getDraftArticlesByCategories(categoryIds) {
-        if (categoryIds.length === 0) {
-            return [];
-        }
-    
-        return db('articles as a')
-            .join('categories as c', 'a.category_id', 'c.id')
-            .where('a.status', 'draft')
-            .whereIn('a.category_id', categoryIds)
-            .select('a.*', 'c.name as category_name');
-    } 
 };

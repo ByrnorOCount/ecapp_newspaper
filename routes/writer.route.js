@@ -35,7 +35,7 @@ router.get('/articles', async function (req, res) {
 router.post('/articles', upload.single('thumbnail'), async function (req, res) {
     const { title, summary, content, category, tags } = req.body;
     const parsedCategory = parseInt(category, 10);
-    const thumbnail = req.file ? `/static/images/${req.file.filename}` : null;
+    const thumbnail = req.file ? `${req.file.filename}` : null;
     try {
       await writerService.submitArticle(req.session.authUser.id, {
         title,
@@ -52,23 +52,43 @@ router.post('/articles', upload.single('thumbnail'), async function (req, res) {
     }
 });
 
-router.post('/articles/:id/edit', async function (req, res) {
-    const { title, summary, content, category, tags } = req.body;
-    const thumbnail = req.file ? `/static/images/${req.file.filename}` : null;
-    try {
-      await writerService.updateArticle(req.params.id, {
-        title,
-        summary,
-        content,
-        category,
-        tags,
-        thumbnail,
+router.get('/articles/:id/edit', async function (req, res) {
+  try {
+      const articleId = req.params.id;
+      const article = await articleService.getArticleById(articleId);
+      const categories = await articleService.getCategoriesWithId();
+      console.log(article);
+
+      res.render('writer/editArticle', {
+          article,
+          categories,
       });
-      res.redirect('/articles');
-    } catch (err) {
-      console.log(err);
-      res.status(500).send('Error updating article');
-    }
+  } catch (error) {
+      console.error('Error fetching article for editing:', error);
+      res.status(500).send('An error occurred while fetching the article.');
+  }
+});
+
+router.post('/articles/:id/edit', upload.single('thumbnail'), async function (req, res) {
+  const articleId = req.params.id;
+  const { title, summary, content, category, tags } = req.body;
+  const parsedCategory = parseInt(category, 10);
+  const thumbnail = req.file ? `${req.file.filename}` : null;
+
+  try {
+      await writerService.updateArticle(articleId, {
+          title,
+          summary,
+          content,
+          category_id: parsedCategory,
+          thumbnail,
+          tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+      });
+      res.redirect('/writer/articles');
+  } catch (error) {
+      console.error('Error updating article:', error);
+      res.status(500).send('An error occurred while updating the article.');
+  }
 });
 
 export default router;

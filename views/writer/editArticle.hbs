@@ -1,26 +1,61 @@
-<h1>Edit Article</h1>
-<form action="/writer/articles/{{article.id}}/edit" method="POST" enctype="multipart/form-data">
-  <label>Title:</label>
-  <input type="text" name="title" value="{{article.title}}" required>
+{{#section 'js'}}
+<script src="https://cdn.ckeditor.com/4.25.0/standard/ckeditor.js"></script>
+<script>
+  CKEDITOR.replace('editor', {
+    toolbar: [
+      { name: 'basicstyles', items: ['Bold', 'Italic'] },
+      { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+      { name: 'insert', items: ['Image', 'Link'] },
+      { name: 'styles', items: ['Format'] },
+      { name: 'tools', items: ['Maximize'] }
+    ],
+    height: 300
+  });
+</script>
+{{/section}}
 
-  <label>Summary:</label>
-  <textarea name="summary" required>{{article.summary}}</textarea>
-
-  <label>Content:</label>
-  <textarea id="editor" name="content" required>{{article.content}}</textarea>
-
-  <label>Category:</label>
-  <select name="category" required>
-    {{#each categories}}
-      <option value="{{this.id}}" {{#if (eq this.id article.category_id)}}selected{{/if}}>{{this.name}}</option>
-    {{/each}}
-  </select>
-
-  <label>Tags:</label>
-  <input type="text" name="tags" value="{{article.tags}}">
-
-  <label>Upload Image:</label>
-  <input type="file" name="image" accept="image/*">
-
-  <button type="submit">Update Article</button>
+<form action="/writer/articles/{{article.id}}/edit" method="POST" enctype="multipart/form-data" class="container mt-5 mb-5 p-4 bg-white shadow rounded">
+  <h2 class="text-center mb-4">Edit Article</h2>
+  
+  {{#if article.rejection_notes}}
+    <div class="alert alert-danger">
+      <strong>Rejection Notes:</strong>
+      <p>{{article.rejection_notes}}</p>
+    </div>
+  {{/if}}
+  
+  <div class="form-group">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" class="form-control" value="{{article.title}}" required>
+  </div>
+  <div class="form-group">
+    <label for="summary">Summary:</label>
+    <textarea id="summary" name="summary" class="form-control" rows="3" required>{{article.summary}}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="content">Content:</label>
+    <textarea id="editor" name="content" class="form-control" rows="6" required>{{article.content}}</textarea>
+  </div>
+  <div class="form-group">
+    <label for="category">Category:</label>
+    <select id="category" name="category" class="form-control" required>
+      {{#each categories}}
+        <option value="{{this.id}}" {{#if (eq this.id ../article.category)}}selected{{/if}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="tags">Tags:</label>
+    <input type="text" id="tags" name="tags" class="form-control" value="{{article.tags}}" placeholder="Enter tags separated by commas">
+  </div>
+  <div class="form-group">
+    <label for="thumbnail">Upload Image:</label>
+    <input type="file" id="thumbnail" name="thumbnail" class="form-control-file" accept="image/*">
+    {{#if article.thumbnail}}
+      <p>Current thumbnail: <img src="/static/images/{{article.thumbnail}}" alt="Thumbnail" style="width: 100px; height: auto;"></p>
+    {{/if}}
+  </div>
+  <div class="text-center">
+    <button type="submit" class="btn btn-primary btn-lg">Update Article</button>
+  </div>
 </form>

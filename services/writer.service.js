@@ -46,26 +46,17 @@ export default {
         .orderBy('a.created_at', 'desc');
     },
 
-    async updateArticle(articleId, { title, summary, content, category, tags, thumbnail }) {
-        const categoryRecord = await db('categories')
-        .select('id')
-        .where('name', category)
-        .first();
-
-        if (!categoryRecord) {
-        throw new Error(`Category "${category}" not found`);
-        }
-
-        const categoryId = categoryRecord.id;
-
+    async updateArticle(articleId, { title, summary, content, category_id, tags, thumbnail }) {
         await db('articles')
         .where('id', articleId)
         .update({
             title,
             summary,
             content,
-            category_id: categoryId,
+            category_id,
             thumbnail,
+            status: 'draft', // reset status if was rejected
+            rejection_notes: null,
             updated_at: db.fn.now(),
         });
 

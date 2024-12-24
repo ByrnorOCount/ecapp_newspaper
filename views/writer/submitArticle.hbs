@@ -50,7 +50,6 @@
   </div>
 </form>
 
-<h2 class="text-center mt-3">My articles</h2>
 <div class="list-group container mt-3">
   {{#each articles}}
     <div class="list-group-item">
@@ -58,7 +57,7 @@
       <p>Status: <span class="badge badge-secondary">{{this.status}}</span></p>
       <p>Category: {{this.category_name}}</p>
       <p>Submitted on: {{formatDate this.created_at}}</p>
-      {{#if (or (eq this.status 'Rejected') (eq this.status 'Not Approved'))}}
+      {{#if (or (eq this.status 'rejected') (eq this.status 'draft'))}}
         <a href="/writer/articles/{{this.id}}/edit" class="btn btn-sm btn-warning">Edit</a>
       {{/if}}
     </div>

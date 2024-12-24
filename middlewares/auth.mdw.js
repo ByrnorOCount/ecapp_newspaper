@@ -5,11 +5,6 @@ import userService from '../services/user.service.js';
 import subscriptionService from '../services/subscription.service.js';
 import articleService from '../services/article.service.js';
 
-export default function (req, res, next) {
-    //tba
-    next();
-}
-
 export function restrictToRole(role) {
   return function (req, res, next) {
     if (!req.session.auth || !req.session.authUser) {
@@ -23,6 +18,35 @@ export function restrictToRole(role) {
 
     next();
   };
+}
+
+export async function restrictPremium(req, res, next) {
+  try {
+      const article = await articleService.getArticleById(req.params.id);
+
+      if (!article) {
+          return res.status(404).send('Article not found.');
+      }
+
+      req.article = article;
+
+      if (article.is_premium) {
+          const authUser = req.session.authUser;
+          if (!authUser) {
+              req.article.content = 'This is premium content. Please sign in and subscribe to view it.';
+          } else {
+              const isValidSubscription = await subscriptionService.getSubscriptionStatus(authUser.id);
+
+              if (!isValidSubscription) {
+                  req.article.content = 'This is premium content. Please subscribe to view it.';
+              }
+          }
+      }
+      next();
+  } catch (error) {
+      console.error("Error in restrictPremium middleware:", error);
+      res.redirect('/articles');
+  }
 }
 
 passport.use(new LocalStrategy(
@@ -88,33 +112,4 @@ export async function isSubscriber(req, res, next) {
 
   req.flash('error', 'Your subscription has expired. Please renew to access premium content.');
   res.redirect('/profile');
-}
-
-export async function restrictPremium(req, res, next) {
-  try {
-      const article = await articleService.getArticleById(req.params.id);
-
-      if (!article) {
-          return res.status(404).send('Article not found.');
-      }
-
-      req.article = article;
-
-      if (article.is_premium) {
-          const authUser = req.session.authUser;
-          if (!authUser) {
-              req.article.content = 'This is premium content. Please sign in and subscribe to view it.';
-          } else {
-              const isValidSubscription = await subscriptionService.getSubscriptionStatus(authUser.id);
-
-              if (!isValidSubscription) {
-                  req.article.content = 'This is premium content. Please subscribe to view it.';
-              }
-          }
-      }
-      next();
-  } catch (error) {
-      console.error("Error in restrictPremium middleware:", error);
-      res.redirect('/articles');
-  }
 }
