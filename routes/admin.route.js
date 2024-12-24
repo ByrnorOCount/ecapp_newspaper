@@ -168,9 +168,11 @@ router.get('/users', async function (req, res) {
   try {
       const users = await adminService.getUsers();
       const editors = await adminService.getEditors();
+      const categories = await adminService.getCategories();
       res.render('admin/users', { 
         users,
         editors,
+        categories
       });
   } catch (err) {
       console.error(err);
@@ -213,6 +215,19 @@ router.post('/users/delete/:id', async function (req, res) {
       res.status(500).send('Error deleting user');
   }
 });
+router.post('/users/assign-categories', async function (req, res) {
+  const { editor_id, categories } = req.body;
+  
+  const category_id = Array.isArray(categories) ? categories : [categories];
+
+  try {
+    await adminService.assignCategories(editor_id, category_id);
+    res.status(200).send('Categories assigned successfully');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error assigning categories');
+  }
+});
 
 router.put('/users/renew/:id', async function (req, res) {
   try {
@@ -222,19 +237,6 @@ router.put('/users/renew/:id', async function (req, res) {
       console.error(err);
       res.status(500).send('Error renewing subscriber');
   }
-});
-
-router.post('/assign-categories', async function (req, res) {
-    console.log(req.body);
-    const { editors: editor_id, categories: category_id } = req.body;
-  
-    try {
-      await adminService.assignCategories(editor_id, category_id);
-      res.status(200).send('Categories assigned successfully');
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Error assigning categories');
-    }
 });
 
 export default router;

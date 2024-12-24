@@ -138,8 +138,11 @@ export default {
           .where('role', 'editor');
     },
     async assignCategories(editor_id, category_id) {
-        if (!editor_id || !Array.isArray(category_id)) {
-            throw new Error('Invalid input: editor_id must be provided, and category_id must be an array');
+        console.log('Editor ID:', editor_id);
+        console.log('Category IDs:', category_id);
+        
+        if (!editor_id || !Array.isArray(category_id) || category_id.some(isNaN)) {
+            throw new Error('Invalid input: editor_id must be provided, and category_id must be an array of numbers');
         }
     
         try {
