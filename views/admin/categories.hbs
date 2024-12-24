@@ -1,46 +1,78 @@
-<h2>Manage Categories</h2>
-<div class="mb-4">
-    <form id="add-category-form" method="POST" action="/admin/categories/add">
-        <div class="form-row">
-            <div class="col">
-                <input type="text" name="name" class="form-control" placeholder="Category Name" required>
+<h2 class="text-center mt-3">Manage Categories</h2>
+<div class="container mt-3">
+    <div class="card mb-4 p-4">
+        <form id="add-category-form" method="POST" action="/admin/categories/add">
+            <div class="form-row align-items-center">
+                <div class="col-md-5 mb-3">
+                    <input type="text" name="name" class="form-control" placeholder="New Category Name" required>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <select name="parent_id" class="form-control">
+                        <option value="">No Parent</option>
+                        {{#each categories}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button type="submit" class="btn btn-success btn-block">Add</button>
+                </div>
             </div>
-            <div class="col">
-                <select name="parent_id" class="form-control">
-                    <option value="">No Parent</option>
-                    {{#each categories}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                    {{/each}}
-                </select>
-            </div>
-            <div class="col">
-                <button type="submit" class="btn btn-success">Add</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Parent</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each categories}}
+                <tr>
+                    <td>{{id}}</td>
+                    <td>{{name}}</td>
+                    <td>{{parent_name}}</td>
+                    <td class="text-center">
+                        <button class="btn btn-primary btn-sm mr-3" data-toggle="modal" data-target="#editCategoryModal-{{id}}">Edit</button>
+                        <form method="POST" action="/admin/categories/delete/{{id}}" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="editCategoryModal-{{id}}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form method="POST" action="/admin/categories/update/{{id}}">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="category_name">Category Name</label>
+                                        <input type="text" name="name" class="form-control" value="{{name}}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="parent_category">Parent Category</label>
+                                        <select name="parent_id" class="form-control">
+                                            <option value="">No Parent</option>
+                                            {{#each ../categories}}
+                                            <option value="{{this.id}}" {{#if (eq ../parent_id this.id)}}selected{{/if}}>{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
 </div>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Parent</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each categories}}
-        <tr>
-            <td>{{id}}</td>
-            <td>{{name}}</td>
-            <td>{{parent_name}}</td>
-            <td>
-                <form method="POST" action="/admin/categories/delete/{{id}}" class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-                <a href="/admin/categories/edit/{{id}}" class="btn btn-primary btn-sm">Edit</a>
-            </td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>

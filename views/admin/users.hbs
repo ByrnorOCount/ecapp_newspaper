@@ -1,31 +1,140 @@
-<h2>Manage Users</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Subscription Expiry</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each users}}
-        <tr>
-            <td>{{id}}</td>
-            <td>{{full_name}}</td>
-            <td>{{email}}</td>
-            <td>{{role}}</td>
-            <td>{{formatDate subscriber_expiry}}</td>
-            <td>
-                {{#if (eq role "subscriber")}}
-                <form method="POST" action="/admin/users/renew/{{id}}" class="d-inline">
-                    <button type="submit" class="btn btn-primary btn-sm">Renew Subscription</button>
-                </form>
-                {{/if}}
-            </td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+<h2 class="text-center mt-3">Manage Users</h2>
+<div class="container mt-3">
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Pen Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>DoB</th>
+                {{!-- <th>Subscription</th> --}}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{id}}</td>
+                <td>{{full_name}}</td>
+                <td>{{pen_name}}</td>
+                <td>{{email}}</td>
+                <td>{{role}}</td>
+                <td>{{formatDate date_of_birth}}</td>
+                {{!-- <td>{{#if subscriber_expiry}}{{formatDate subscriber_expiry}}{{else}}N/A{{/if}}</td> --}}
+                <td>
+                    <form method="POST" action="/admin/users/renew/{{id}}" class="d-inline">
+                        <button type="submit" class="btn btn-primary btn-sm">Renew</button>
+                    </form>
+                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editUserModal-{{id}}">Edit</button>
+                    <form method="POST" action="/admin/users/delete/{{id}}" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="editUserModal-{{id}}" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form method="POST" action="/admin/users/update/{{id}}">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit User</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="full_name">Full Name</label>
+                                    <input type="text" name="full_name" class="form-control" value="{{full_name}}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pen_name">Pen Name</label>
+                                    <input type="text" name="pen_name" class="form-control" value="{{pen_name}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" name="email" class="form-control" value="{{email}}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="role">Role</label>
+                                    <select name="role" class="form-control">
+                                        <option value="reader" {{#if (eq role "reader")}}selected{{/if}}>Reader</option>
+                                        <option value="writer" {{#if (eq role "writer")}}selected{{/if}}>Writer</option>
+                                        <option value="editor" {{#if (eq role "editor")}}selected{{/if}}>Editor</option>
+                                        <option value="admin" {{#if (eq role "admin")}}selected{{/if}}>Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="date_of_birth">Date of Birth</label>
+                                    <input type="date" name="date_of_birth" class="form-control" value="{{formatDate date_of_birth}}">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <h3>Add New User</h3>
+    <form method="POST" action="/admin/users/add">
+        <div class="form-group">
+            <label for="full_name">Full Name:</label>
+            <input type="text" name="full_name" id="full_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="pen_name">Pen Name:</label>
+            <input type="text" name="pen_name" id="pen_name" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="role">Role:</label>
+            <select name="role" class="form-control">
+                <option value="reader">Reader</option>
+                <option value="writer">Writer</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="date_of_birth">Date of Birth:</label>
+            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-success">Add User</button>
+    </form>
+
+    <h3 class="mt-4">Assign Editors to Categories</h3>
+    <form method="POST" action="/admin/users/assign-categories">
+        <div class="form-group">
+            <label for="user">Select Editor:</label>
+            <select id="editor" name="editor_id" class="form-control" required onchange="updateAssignedCategories(this.value)">
+                <option value="">Select an Editor</option>
+                {{#each editors}}
+                <option value="{{id}}">{{full_name}} ({{email}})</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="categories">Assign Categories:</label>
+            <select id="categories" name="categories[]" class="form-control" multiple required>
+                {{#each categories}}
+                <option value="{{id}}">{{name}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Assign</button>
+    </form>
+</div>

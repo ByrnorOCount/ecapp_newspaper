@@ -1,37 +1,134 @@
-<h2>Manage Articles</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Link</th>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Premium</th>
-            <th>Views</th>
-            <th>Publication Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each articles}}
-        <tr>
-            <td><a href="/articles/{{id}}">Link</a></td>
-            <td>{{id}}</td>
-            <td>{{title}}</td>
-            <td>{{status}}</td>
-            <td>{{is_premium}}</td>
-            <td>{{views}}</td>
-            <td>{{formatDate publication_date}}</td>
-            <td>
-                <form method="POST" action="/admin/articles/update/{{id}}" class="d-inline">
-                    <select name="status" class="form-control">
-                        <option value="draft" {{selected status "draft"}}>Draft</option>
-                        <option value="published" {{selected status "published"}}>Published</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary btn-sm mt-2">Update</button>
-                </form>
-            </td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+<h2 class="text-center mt-3">Manage Articles</h2>
+<div class="container mt-3">
+    {{!-- <div class="card mb-4 p-4">
+        <form id="add-article-form" method="POST" action="/admin/articles/add">
+            <div class="form-row align-items-center">
+                <div class="col-md-10 mb-3">
+                    <input type="text" name="title" class="form-control" placeholder="Article Title" required>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button type="submit" class="btn btn-success btn-block">Add</button>
+                </div>
+            </div>
+        </form>
+    </div> --}}
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Link</th>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each articles}}
+                <tr>
+                    <td><a href="/articles/{{id}}">View</a></td>
+                    <td>{{id}}</td>
+                    <td>{{title}}</td>
+                    <td>{{category_name}}</td>
+                    <td>{{status}}</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group" aria-label="Actions">
+                            <form method="POST" action="/admin/articles/{{id}}/status" class="d-inline">
+                                <button type="submit" class="btn btn-warning btn-sm mr" name="status" value="draft">Draft</button>
+                                <button type="submit" class="btn btn-success btn-sm mr" name="status" value="published">Publish</button>
+                                <button type="submit" class="btn btn-danger btn-sm mr-1" name="status" value="rejected">Reject</button>
+                            </form>
+                            <button 
+                                type="button" 
+                                class="btn btn-primary btn-sm mr-1" 
+                                data-toggle="modal" 
+                                data-target="#editArticleModal-{{id}}">
+                                Edit
+                            </button>
+                            <form method="POST" action="/admin/articles/delete/{{id}}" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                
+                <div class="modal fade" id="editArticleModal-{{id}}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form method="POST" action="/admin/articles/update/{{id}}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Article</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Title -->
+                                    <div class="form-group">
+                                        <label for="title-{{id}}">Title</label>
+                                        <input type="text" name="title" id="title-{{id}}" class="form-control" value="{{title}}" required>
+                                    </div>
+                                    <!-- Summary -->
+                                    <div class="form-group">
+                                        <label for="summary-{{id}}">Summary</label>
+                                        <textarea name="summary" id="summary-{{id}}" class="form-control" rows="3">{{summary}}</textarea>
+                                    </div>
+                                    <!-- Content -->
+                                    <div class="form-group">
+                                        <label for="content-{{id}}">Content</label>
+                                        <textarea name="content" id="content-{{id}}" class="form-control" rows="5" required>{{content}}</textarea>
+                                    </div>
+                                    <!-- Category -->
+                                    <div class="form-group">
+                                        <label for="category-{{id}}">Category</label>
+                                        <select name="category_id" id="category-{{id}}" class="form-control">
+                                            <option value="">Select Category</option>
+                                            {{#each ../categories}}
+                                            <option value="{{id}}" {{#if (eq ../category_id id)}}selected{{/if}}>{{name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <!-- Writer -->
+                                    <div class="form-group">
+                                        <label for="writer-{{id}}">Writer</label>
+                                        <select name="writer_id" id="writer-{{id}}" class="form-control">
+                                            <option value="">Select Writer</option>
+                                            {{#each ../writers}}
+                                            <option value="{{id}}" {{#if (eq ../writer_id id)}}selected{{/if}}>{{full_name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <!-- Tags -->
+                                    <div class="form-group">
+                                        <label for="tags-{{id}}">Tags</label>
+                                        <select name="tags" id="tags-{{id}}" class="form-control" multiple>
+                                            {{#each ../tags}}
+                                            <option value="{{id}}" {{#if (includes ../article_tags this.id)}}selected{{/if}}>{{name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <!-- Premium -->
+                                    <div class="form-check">
+                                        <input type="checkbox" name="is_premium" id="premium-{{id}}" class="form-check-input" {{#if is_premium}}checked{{/if}}>
+                                        <label class="form-check-label" for="premium-{{id}}">Premium</label>
+                                    </div>
+                                    <!-- Rejection Notes -->
+                                    <div class="form-group">
+                                        <label for="rejection-notes-{{id}}">Rejection Notes</label>
+                                        <textarea name="rejection_notes" id="rejection-notes-{{id}}" class="form-control">{{rejection_notes}}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>

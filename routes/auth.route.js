@@ -22,6 +22,7 @@ router.post('/register', async function (req, res) {
             penName: pen_name,
             email,
             hashedPassword,
+            role: 'reader',
             date_of_birth,
         }); 
         req.flash('success', 'Registration successful! Please log in.');

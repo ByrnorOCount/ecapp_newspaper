@@ -1,61 +1,64 @@
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Category</th>
-      <th>Tags</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each draftArticles}}
+<h2 class="text-center mt-3">Review Articles</h2>
+<div class="container mt-3">
+  <table class="table table-striped">
+    <thead>
       <tr>
-        <td><a href="/articles/{{this.id}}">{{this.title}}</a></td>
-        <td>{{this.category_name}}</td>
-        <td>{{this.tags}}</td>
-        <td>
-          <form action="/editor/approve/{{this.id}}" method="POST">
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label for="categories" class="font-weight-bold">Category:</label>
-                <select id="categories" name="categories" class="form-control" required>
-                  <option value="0" disabled selected>Select a Category</option>
-                  {{#each ../categories}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div class="form-group col-md-6">
-                <label for="tags" class="font-weight-bold">Tags:</label>
-                <select id="tags" name="tags" class="form-control" multiple required>
-                  <option value="0" disabled>Select Tags</option>
-                  {{#each ../tags}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                  {{/each}}
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="publicationDate" class="font-weight-bold">Publication Date:</label>
-              <input type="datetime-local" id="publicationDate" name="publicationDate" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-success btn-block">Approve</button>
-          </form>
-          <hr>
-          <form action="/editor/reject/{{this.id}}" method="POST">
-            <div class="form-group">
-              <label for="rejectionNotes" class="font-weight-bold">Reason for Rejection:</label>
-              <textarea id="rejectionNotes" name="rejectionNotes" class="form-control" placeholder="Reason for rejection" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-danger btn-block">Reject</button>
-          </form>
-        </td>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Tags</th>
+        <th>Actions</th>
       </tr>
-    {{/each}}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {{#each draftArticles}}
+        <tr>
+          <td><a href="/articles/{{this.id}}">{{this.title}}</a></td>
+          <td>{{this.category_name}}</td>
+          <td>{{this.tags}}</td>
+          <td>
+            <form action="/editor/approve/{{this.id}}" method="POST">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="categories" class="font-weight-bold">Category:</label>
+                  <select id="categories" name="categories" class="form-control" required>
+                    <option value="0" disabled selected>Select a Category</option>
+                    {{#each ../categories}}
+                      <option value="{{this.id}}">{{this.name}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="tags" class="font-weight-bold">Tags:</label>
+                  <select id="tags" name="tags" class="form-control" multiple required>
+                    <option value="0" disabled>Select Tags</option>
+                    {{#each ../tags}}
+                      <option value="{{this.id}}">{{this.name}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="publicationDate" class="font-weight-bold">Publication Date:</label>
+                <input type="datetime-local" id="publicationDate" name="publicationDate" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-success btn-block">Approve</button>
+            </form>
+            <hr>
+            <form action="/editor/reject/{{this.id}}" method="POST">
+              <div class="form-group">
+                <label for="rejectionNotes" class="font-weight-bold">Reason for Rejection:</label>
+                <textarea id="rejectionNotes" name="rejectionNotes" class="form-control" placeholder="Reason for rejection" rows="3" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-danger btn-block">Reject</button>
+            </form>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
 
-<h2 class="text-center mt-4">Processed Articles</h2>
+<h2 class="text-center mt-3">Processed Articles</h2>
 <div class="list-group container mt-3">
   {{#each processedArticles}}
     <div class="list-group-item">

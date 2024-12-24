@@ -16,15 +16,15 @@ export default {
             .first();
     },
 
-    async registerUser({ fullName, penName, email, hashedPassword, date_of_birth }) {
+    async registerUser({ fullName, penName, email, hashedPassword, role, date_of_birth }) {
         return await db('users')
             .insert({
                 full_name: fullName,
                 pen_name: penName || null, // allow null if pen name is not provided
                 email,
                 password: hashedPassword,
+                role,
                 date_of_birth,
-                role: 'reader',
             });
     },
 
