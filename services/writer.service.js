@@ -15,7 +15,7 @@ export default {
             thumbnail,
             writer_id: writerId,
             is_premium: is_premium || false,
-            status: 'pending',
+            status: 'draft',
         });
     
         if (tags && tags.length > 0) {
